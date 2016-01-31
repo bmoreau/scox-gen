@@ -31,12 +31,12 @@ class Character:
     def Character(self, name, level=0, nature='Demon'):
         """Constructor.
 
-           Arguments:
-           name -- Name of the new character.
+        Arguments:
+        name -- Name of the new character.
 
-           Keyword arguments:
-           level -- Level of the new character (default 0).
-           nature -- Nature of the new character (default 'Demon').
+        Keyword arguments:
+        level -- Level of the new character (default 0).
+        nature -- Nature of the new character (default 'Demon').
         """
         self.__name = name
         self.__level = level
@@ -48,35 +48,28 @@ class Character:
         self.init_values()
 
     def init_attributes():
-        """Initialize the character's attributes.
-        """
+        """Initialize the character's attributes."""
         self.__attributes = {}
         # TODO: populate the map
 
     def init_skills():
-        """Initialize the character's skills.
-        """
+        """Initialize the character's skills."""
         self.__skills = {}
         # TODO: populate the map
 
     def init_values():
-        """Initialize the character's values.
-        """
+        """Initialize the character's values."""
         self.__values = {}
         # TODO: populate the map
 
     def get_level(self):
-        """Return self.__level.
-        """
+        """Return the character's level."""
         return self.__level
 
     def get_name(self):
-        """Return self.__name.
-        """
+        """Return the character's name."""
         return self.__name
 
     def update_values():
-        """Update the character's values and skills based on its current
-        attributes.
-        """
+        """Compute the character's values and skills."""
         # TODO
