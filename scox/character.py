@@ -28,7 +28,7 @@ class Character:
         ranks of self.__attributes.
     """
 
-    def Character(self, name, level=0, nature='Demon'):
+    def __init__(self, name, level=0, nature='Demon'):
         """Constructor.
 
         Arguments:
@@ -47,17 +47,17 @@ class Character:
         self.init_skills()
         self.init_values()
 
-    def init_attributes():
+    def init_attributes(self):
         """Initialize the character's attributes."""
         self.__attributes = {}
         # TODO: populate the map
 
-    def init_skills():
+    def init_skills(self):
         """Initialize the character's skills."""
         self.__skills = {}
         # TODO: populate the map
 
-    def init_values():
+    def init_values(self):
         """Initialize the character's values."""
         self.__values = {}
         # TODO: populate the map
@@ -70,6 +70,6 @@ class Character:
         """Return the character's name."""
         return self.__name
 
-    def update_values():
+    def update_values(self):
         """Compute the character's values and skills."""
         # TODO

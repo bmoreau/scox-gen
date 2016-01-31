@@ -8,7 +8,7 @@ class Value:
     __rank -- Rank of the value, expressed as an integer.
     """
 
-    def Value(self, rank):
+    def __init__(self, rank):
         """Constructor.
 
         Arguments:
