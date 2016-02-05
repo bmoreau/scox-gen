@@ -1,5 +1,7 @@
 #! /usr/bin/env python3
 
+import value
+
 class Character:
     """Base class for representing characters in scox.
     
@@ -7,7 +9,7 @@ class Character:
     their types: a list of attributes, a list of skills, a list of powers and a
     list of mandatory values.
 
-    Class attributes:
+    Instance variables:
     __attributes -- Map of the character defining attributes.
     __level -- Level of the character in his / her hierarchy (default 0).
     __name -- Name of the character.
@@ -18,7 +20,7 @@ class Character:
     __skills -- Map of character defining skills.
     __superior -- Hierarchical superior of the character.
 
-    Class methods:
+    Methods:
     apply_profile -- Apply the modifications listed in an input profile.
     init_attributes -- Initialize the character's attributes.
     init_skills -- Initialize the character's skills.
@@ -50,7 +52,12 @@ class Character:
     def init_attributes(self):
         """Initialize the character's attributes."""
         self.__attributes = {}
-        # TODO: populate the map
+        self.__attributes["Force"] = value.Attribute(4)
+        self.__attributes["Agilité"] = value.Attribute(4)
+        self.__attributes["Perception"] = value.Attribute(4)
+        self.__attributes["Volonté"] = value.Attribute(4)
+        self.__attributes["Présence"] = value.Attribute(4)
+        self.__attributes["Foi"] = value.Attribute(4)
 
     def init_skills(self):
         """Initialize the character's skills."""
