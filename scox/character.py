@@ -17,7 +17,9 @@ class Character:
     __notes -- Speak your mind freely.
     __powers -- Map of character defining powers.
     __side_values -- Map of additional character defining values.
-    __skills -- Map of character defining skills.
+    __primary_skills -- Map of character's defining skills.
+    __secondary_skills -- Map of character's slightly less defining skills.
+    __exotic_skills -- Map of character's unusual skills.
     __superior -- Hierarchical superior of the character.
 
     Methods:
@@ -61,13 +63,20 @@ class Character:
 
     def init_skills(self):
         """Initialize the character's skills."""
-        self.__skills = {}
+        self.__primary_skills = {}
+        self.__exotic_skills = {}
+        self.__secondary_skills = {}
         # TODO: populate the map
 
     def init_values(self):
-        """Initialize the character's values."""
+        """Initialize the character's side values."""
         self.__values = {}
-        # TODO: populate the map
+        self.values["PF"] = value.Value(0)
+        self.values["PP"] = value.Value(0)
+        self.values["BL"] = value.Value(0)
+        self.values["BG"] = value.Value(0)
+        self.values["BF"] = value.Value(0)
+        self.values["MS"] = value.Value(0)
 
     def get_level(self):
         """Return the character's level."""
