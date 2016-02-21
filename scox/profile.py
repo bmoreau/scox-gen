@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 import zipfile
-import value
+import scox.value as value
 
 class Profile:
     """Base class for representing a character's numerical values.

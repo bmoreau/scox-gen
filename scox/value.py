@@ -15,7 +15,7 @@ class Value:
         Arguments:
         base_rank -- Base rank of the new value.
         """
-        self.__base_rank = rank
+        self.__base_rank = base_rank
         self.__rank = 0
 
     def get_full_rank(self):
@@ -74,10 +74,12 @@ class Skill(Attribute):
         skill is specific.
     __master_skill -- Generic version of the skill; quite the opposite of
         specialization.
+    __acquired -- Whether the attribute needs to be invested ranks before it
+        can be used (default False).
     """
 
     def __init__(self, governing_attribute=None, specific=False,
-        multiple=False, invariant=False, master_skill=None):
+        multiple=False, invariant=False, master_skill=None, acquired=False):
         """Constructor.
 
         Keyword arguments:
@@ -88,30 +90,35 @@ class Skill(Attribute):
         multiple -- Boolean value; True if the new skill is multiple (default
             False).
         invariant -- True if the new attribute is an invariant (default False).
+        master_skill -- A skill instance representing the generic version of 
+            self (default None).
+        acquired -- True if the new attribute requires a rank investment before
+        it can be used (default False).
         """
+        Attribute.__init__(self, 0, invariant=invariant)
         self.__governing_attribute = governing_attribute
         self.__invariant = invariant
+        self.__acquired = acquired
         if multiple:
             self.__varieties = []
         if specific:
             self.__specialization = Skill(
                 governing_attribute=self.__governing_attribute,
-                master_skill=self
+                master_skill=self,
+                acquired=self.__acquired
                 )
         if master_skill is not None:
             self.__master_skill = master_skill
+        self.compute_base_rank()
 
     def compute_base_rank(self):
         """Compute the value of the skill's based rank base on the rank of its
         governing attribute, if any.
         """
         if self.__governing_attribute is not None:
-            self.__base_rank = governing_attribute.get_full_rank() / 2
-        else:
+            self.__base_rank = self.__governing_attribute.get_full_rank() / 2
+        elif not self.__invariant:
             self.__base_rank = 2
-        # Specialization rank must be computed too, if any
-        if self.__specialization is not None:
-            self.__specialization.compute_base_rank()
 
     def increment_rank(self):
         """Increase the rank of the attribute by 1."""
