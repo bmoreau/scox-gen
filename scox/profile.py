@@ -11,37 +11,40 @@ class Profile:
     of quick character creation.
 
     Instance variables:
-    __attributes -- Map of profile defining attributes.
-    __powers -- Map of profile defining powers.
-    __primary_skills -- Map of profile's defining skills.
-    __secondary_skills -- Map of profile's slightly less defining skills.
-    __exotic_skills -- Map of profile's unusual skills.
+    attributes -- Map of profile defining attributes.
+    powers -- Map of profile defining powers.
+    primary_skills -- Map of profile's defining skills.
+    secondary_skills -- Map of profile's slightly less defining skills.
+    exotic_skills -- Map of profile's unusual skills.
     """
 
-    def __init__(self, profile):
-        """Constructor.
+    def __init__(self):
+        """Constructor."""
+        self.attributes = {}
+        self.powers = {}
+        self.primary_skills = {}
+        self.secondary_skills = {}
+        self.exotic_skills = {}
+
+    def load_profile(self, profile):
+        """Load a profile from the input profile archive.
 
         Arguments:
         profile -- Path to a profile.scx archive.
         """
-        self.__attributes = {}
-        self.__powers = {}
-        self.__primary_skills = {}
-        self.__secondary_skills = {}
-        self.__exotic_skills = {}
         with zipfile.ZipFile(profile) as p:
             with p.open('attributes.csv') as attr:
-                self.__load_attributes(attr)
+                self.load_attributes(attr)
             with p.open('primary_skills.csv') as p_skills:
-                self.__load_primary_skills(p_skills)
+                self.load_primary_skills(p_skills)
             with p.open('secondary_skills.csv') as s_skills:
-                self.__load_secondary_skills(s_skills)
+                self.load_secondary_skills(s_skills)
             with p.open('exotic_skills.csv') as e_skills:
-                self.__load_exotic_skills(e_skills)
+                self.load_exotic_skills(e_skills)
             with p.open('powers.csv') as powers:
-                self.__load_powers(powers)
+                self.load_powers(powers)
 
-    def __load_attributes(self, attr):
+    def load_attributes(self, attr):
         """Load attributes from the input attribute file.
 
         Arguments:
@@ -49,9 +52,9 @@ class Profile:
         """
         reader = csv.DictReader(attr)
         for row in reader:
-            self.__attributes[row['Name']] = value.Attribute(row['Rank'])
+            self.attributes[row['Name']] = value.Attribute(row['Rank'])
 
-    def __load_primary_skills(self, p_skills):
+    def load_primary_skills(self, p_skills):
         """Load primary skills from the input skill file.
 
         Arguments:
@@ -59,7 +62,7 @@ class Profile:
         """
         print("TODO") # TODO
 
-    def __load_secondary_skills(self, s_skills):
+    def load_secondary_skills(self, s_skills):
         """Load secondary skills from the input skill file.
 
         Arguments:
@@ -67,7 +70,7 @@ class Profile:
         """
         print("TODO") # TODO
 
-    def __load_exotic_skills(self, e_skills):
+    def load_exotic_skills(self, e_skills):
         """Load exotic skills from the input skill file.
 
         Arguments:
@@ -75,7 +78,7 @@ class Profile:
         """
         print("TODO") # TODO
 
-    def __load_powers(self, powers):
+    def load_powers(self, powers):
         """Load powers from the input power file.
 
         Arguments:
