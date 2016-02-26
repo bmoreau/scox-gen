@@ -118,7 +118,7 @@ class Character(profile.Profile):
         self.secondary_skills["CultureGenerale"] = value.Skill(
             specific=True, acquired=True)
         self.secondary_skills["Hobby"] = value.Skill(
-            specific=True, acquired=True)
+            multiple=True, acquired=True)
         self.secondary_skills["Informatique"] = value.Skill(acquired=True)
         self.secondary_skills["Intimidation"] = value.Skill(
             governing_attribute=self.attributes["Force"])

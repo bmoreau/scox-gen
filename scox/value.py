@@ -1,5 +1,7 @@
 #! /usr/bin/env python3
 
+import warnings
+
 class Value:
     """Base class for representing numerical values for characters and profiles
     in scox.
@@ -53,6 +55,15 @@ class Attribute(Value):
         """
         Value.__init__(self, base_rank)
         self.invariant = invariant
+
+    def increase_rank(self, step):
+        """Increase the rank of the attribute by 1.
+        
+        Arguments:
+        step -- Step by which the rank of the attribute will be increased.
+        """
+        if not self.invariant:
+          self.rank += step
 
     def increment_rank(self):
         """Increase the rank of the attribute by 1."""
@@ -123,6 +134,18 @@ class Skill(Attribute):
         if master_skill is not None:
             self.master_skill = master_skill
 
+    def add_variety(self, variety):
+        """Append the input variety to the list of this skill's varieties, if
+        the skill is multiple.
+
+        Arguments:
+        variety -- A variety of this skill.
+        """
+        try:
+            self.varieties.append(variety)
+        except AttributeError:
+            warnings.warn("Non-multiple skill.", Warning)
+
     def compute_base_rank(self):
         """Compute the value of the skill's based rank base on the rank of its
         governing attribute, if any.
@@ -138,9 +161,30 @@ class Skill(Attribute):
             self.specialization.get_full_rank() > self.get_full_rank()):
           self.rank += 1
 
+    def is_multiple(self):
+        """Return True if this skill is multiple."""
+        if self.varieties is not None:
+            return True
+        else
+            return False
+
+    def is_specific(self):
+        """Return True if this skill is specific."""
+        if self.specialization is not None:
+            return True
+        else
+            return False
+
     def decrement_rank(self):
         """Decrease the rank of the attribute by 1."""
         if self.rank > 0 and not self.invariant and (
             self.master_skill is None or
             self.master_skill.get_full_rank() < self.get_full_rank()):
             self.rank -= 1
+
+    def get_specialization(self):
+        """Return the specialization of the skill, if it exists."""
+        if not self.invariant:
+            return self.specialization
+        else:
+            warnings.warn("Non-specific skill.", Warning)
