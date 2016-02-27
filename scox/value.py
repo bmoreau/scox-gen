@@ -123,6 +123,8 @@ class Skill(Attribute):
         self.governing_attribute = governing_attribute
         self.invariant = invariant
         self.acquired = acquired
+        self.specialization = None
+        self.varieties = None
         if multiple:
             self.varieties = []
         if specific:
@@ -131,8 +133,7 @@ class Skill(Attribute):
                 master_skill=self,
                 acquired=self.acquired
                 )
-        if master_skill is not None:
-            self.master_skill = master_skill
+        self.master_skill = master_skill
 
     def add_variety(self, variety):
         """Append the input variety to the list of this skill's varieties, if
@@ -154,6 +155,8 @@ class Skill(Attribute):
             self.base_rank = self.governing_attribute.get_full_rank() / 2
         elif not self.invariant:
             self.base_rank = 2
+        if self.specialization is not None:
+            self.specialization.compute_base_rank()
 
     def increment_rank(self):
         """Increase the rank of the attribute by 1."""
@@ -165,14 +168,14 @@ class Skill(Attribute):
         """Return True if this skill is multiple."""
         if self.varieties is not None:
             return True
-        else
+        else:
             return False
 
     def is_specific(self):
         """Return True if this skill is specific."""
         if self.specialization is not None:
             return True
-        else
+        else:
             return False
 
     def decrement_rank(self):

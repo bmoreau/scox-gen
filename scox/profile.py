@@ -2,6 +2,8 @@
 
 import scox.value as value
 import zipfile
+import csv
+import io
 import warnings
 
 class Profile:
@@ -51,7 +53,7 @@ class Profile:
         Arguments:
         attr -- CSV file containing attributes.
         """
-        reader = csv.DictReader(attr)
+        reader = csv.DictReader(io.TextIOWrapper(attr))
         for row in reader:
             if row['Name'] in self.attributes:
                 self.attributes[row['Name']].increase_rank(int(row['Rank']))
@@ -64,14 +66,14 @@ class Profile:
         Arguments:
         p_skills -- CSV file containing skills.
         """
-        reader = csv.DictReader(p_skills)
+        reader = csv.DictReader(io.TextIOWrapper(p_skills))
         for row in reader:
             # case where skill exists
             if row['Name'] in self.primary_skills:
                 self.primary_skills[row['Name']].increase_rank(int(row['Rank']))
             # case where skill is a specialization
-            elif (row['Name'].split('_')[0] in self.primary_skills) and
-              row['Name'].split('_')[1] == 'spe':
+            elif (row['Name'].split('_')[0] in self.primary_skills and
+              row['Name'].split('_')[1] == 'spe'):
                 self.primary_skills[row['Name'].split('_')[0]].get_specialization().increase_rank(int(row['Rank']))
             # case where skill does not exist
             else:
@@ -83,7 +85,7 @@ class Profile:
         Arguments:
         s_skills -- CSV file containing skills.
         """
-        reader = csv.DictReader(s_skills)
+        reader = csv.DictReader(io.TextIOWrapper(s_skills))
         for row in reader:
             # case where skill exists
             if row['Name'] in self.secondary_skills:
@@ -113,7 +115,7 @@ class Profile:
         Arguments:
         e_skills -- CSV file containing skills.
         """
-        reader = csv.DictReader(e_skills)
+        reader = csv.DictReader(io.TextIOWrapper(e_skills))
         for row in reader:
             if row['Name'] in self.exotic_skills:
                 self.exotic_skills[row['Name']].increase_rank(int(row['Rank']))

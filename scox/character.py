@@ -94,8 +94,7 @@ class Character(profile.Profile):
         self.exotic_skills["KamaSutra"] = value.Skill(acquired=True)
         self.exotic_skills["LangageAnimal"] = value.Skill(
             governing_attribute=self.attributes["Perception"], acquired=True)
-        self.exotic_skills["Narcolepsie"] = value.Skill(
-            governing_attribute=self.attributes["Volonte"], acquired=True)
+        self.exotic_skills["Narcolepsie"] = value.Skill(acquired=True)
         self.exotic_skills["Pickpocket"] = value.Skill(
             governing_attribute=self.attributes["Agilite"], acquired=True)
         self.exotic_skills["Prestidigitation"] = value.Skill(
@@ -103,6 +102,7 @@ class Character(profile.Profile):
         self.exotic_skills["SixiemeSens"] = value.Skill(
             governing_attribute=self.attributes["Foi"], acquired=True)
         self.exotic_skills["Torture"] = value.Skill(acquired=True)
+        self.exotic_skills["Ventriloquie"] = value.Skill(acquired=True)
         # Secondary skills
         self.secondary_skills["Acrobaties"] = value.Skill(
             governing_attribute=self.attributes["Agilite"])
@@ -185,7 +185,7 @@ class Character(profile.Profile):
             wound += 2
         elif self.nature == 'Angel':
             wound += 3
-        self.values["BL"] = int(wound)
-        self.values["BG"] = int(2 * wound)
-        self.values["BF"] = int(3 * wound)
-        self.values["MS"] = int(4 * wound)
+        self.values["BL"].set_rank(int(wound))
+        self.values["BG"].set_rank(int(2 * wound))
+        self.values["BF"].set_rank(int(3 * wound))
+        self.values["MS"].set_rank(int(4 * wound))
