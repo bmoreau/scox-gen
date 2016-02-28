@@ -152,7 +152,7 @@ class Skill(Attribute):
         governing attribute, if any.
         """
         if self.governing_attribute is not None:
-            self.base_rank = self.governing_attribute.get_full_rank() / 2
+            self.base_rank = int(self.governing_attribute.get_full_rank() / 2)
         elif not self.invariant:
             self.base_rank = 2
         if self.specialization is not None:
