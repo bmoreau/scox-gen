@@ -146,7 +146,6 @@ class Character(profile.Profile):
 
     def init_values(self):
         """Initialize the character's side values."""
-        self.values = {}
         self.values["PF"] = value.Value(0)
         self.values["PP"] = value.Value(0)
         self.values["BL"] = value.Value(0)
@@ -174,10 +173,10 @@ class Character(profile.Profile):
         for e in self.exotic_skills.values():
             e.compute_base_rank()
         # update side values
-        self.values["PF"].set_rank(
+        self.values["PF"].set_base_rank(
             int(self.attributes['Force'].get_real_rank() +
                 self.attributes['Volonte'].get_real_rank()))
-        self.values["PP"].set_rank(
+        self.values["PP"].set_base_rank(
             int(self.attributes['Foi'].get_real_rank() +
                 self.attributes['Volonte'].get_real_rank()))
         wound = self.attributes['Force'].get_real_rank()
@@ -185,7 +184,7 @@ class Character(profile.Profile):
             wound += 2
         elif self.nature == 'Angel':
             wound += 3
-        self.values["BL"].set_rank(int(wound))
-        self.values["BG"].set_rank(int(2 * wound))
-        self.values["BF"].set_rank(int(3 * wound))
-        self.values["MS"].set_rank(int(4 * wound))
+        self.values["BL"].set_base_rank(int(wound))
+        self.values["BG"].set_base_rank(int(2 * wound))
+        self.values["BF"].set_base_rank(int(3 * wound))
+        self.values["MS"].set_base_rank(int(4 * wound))

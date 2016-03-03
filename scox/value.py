@@ -28,6 +28,10 @@ class Value:
         """
         return self.rank + self.base_rank
 
+    def set_base_rank(self, rank):
+        """Set the base rank of the value."""
+        self.base_rank = rank
+
     def set_rank(self, rank):
         """Set the rank of the value."""
         self.rank = rank

@@ -5,6 +5,7 @@ import zipfile
 import csv
 import io
 import warnings
+import collections
 
 class Profile:
     """Base class for representing a character's numerical values.
@@ -23,11 +24,12 @@ class Profile:
 
     def __init__(self):
         """Constructor."""
-        self.attributes = {}
-        self.powers = {}
-        self.primary_skills = {}
-        self.secondary_skills = {}
-        self.exotic_skills = {}
+        self.attributes = collections.OrderedDict()
+        self.values = collections.OrderedDict()
+        self.powers = collections.OrderedDict()
+        self.primary_skills = collections.OrderedDict()
+        self.secondary_skills = collections.OrderedDict()
+        self.exotic_skills = collections.OrderedDict()
 
     def load_profile(self, profile):
         """Load a profile from the input profile archive.
@@ -38,6 +40,8 @@ class Profile:
         with zipfile.ZipFile(profile) as p:
             with p.open('attributes.csv') as attr:
                 self.load_attributes(attr)
+            with p.open('values.csv') as val:
+                self.load_side_values(val)
             with p.open('primary_skills.csv') as p_skills:
                 self.load_primary_skills(p_skills)
             with p.open('secondary_skills.csv') as s_skills:
@@ -129,3 +133,16 @@ class Profile:
         powers -- CSV file containing powers.
         """
         print("TODO") # TODO
+
+    def load_side_values(self, values):
+        """Load side values from the input value file.
+
+        Arguments:
+        values -- CSV file containing side values.
+        """
+        reader = csv.DictReader(io.TextIOWrapper(values))
+        for row in reader:
+            if row['Name'] in self.values:
+                self.values[row['Name']].set_rank(int(row['Rank']))
+            else:
+                raise KeyError("Value " + row['Name'] + " not found.")
