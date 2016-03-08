@@ -161,6 +161,65 @@ class Character(profile.Profile):
         """Return the character's name."""
         return self.name
 
+    def print_CLI(self):
+        """Print the character's complete profile to the command line."""
+        print(self.get_name() + " - Grade " + str(self.level))
+        print(" \u251c\u2500 Attributs")
+        for a in self.attributes:
+            print(" \u2502    \u2514\u2500 " + a + " " +
+                self.attributes[a].get_CLI_rank())
+        print(" \u251c\u2500 Valeurs annexes")
+        for v in self.values:
+            print(" \u2502    \u2514\u2500 " + v + " " +
+                self.values[v].get_CLI_rank())
+        print(" \u251c\u2500 Talents principaux")
+        self.print_primary_skills()
+        print(" \u251c\u2500 Talents exotiques")
+        self.print_exotic_skills()
+        print(" \u251c\u2500 Talents secondaires")
+        self.print_secondary_skills()
+        print(" \u2514\u2500 Pouvoirs")
+        self.print_powers()
+
+    def print_exotic_skills(self):
+        """Print the character's usable exotic skills."""
+        for e in self.exotic_skills:
+            if self.exotic_skills[e].is_usable():
+                print(" \u2502    \u2514\u2500 " + e +
+                    self.exotic_skills[e].get_CLI_rank())
+
+    def print_powers(self):
+        """Print the character's powers."""
+        for p in self.powers:
+            print("      \u2514\u2500 " + p + " " +
+                self.powers[p].get_CLI_rank() + " " +
+                self.powers[p].get_cost())
+
+    def print_primary_skills(self):
+        """Print the character's usable primary skills."""
+        for p in self.primary_skills:
+            sk = self.primary_skills[p]
+            if sk.is_usable():
+                print(" \u2502    \u2514\u2500 " + p + " " +
+                    sk.get_CLI_rank())
+                if sk.is_specific():
+                    print(" \u2502        \u2514\u2500 " + p + "_spe " +
+                        sk.get_specialization().get_CLI_rank())
+
+    def print_secondary_skills(self):
+        """Print the character's usable secondary skills."""
+        for s in self.secondary_skills:
+            sk = self.secondary_skills[s]
+            if sk.is_usable():
+                print(" \u2502    \u2514\u2500 " + s + " " +
+                    sk.get_CLI_rank())
+                if sk.is_specific():
+                    print(" \u2502        \u2514\u2500 " + s + "_spe " +
+                        sk.get_specialization().get_CLI_rank())
+                elif sk.is_multiple():
+                    for v in sk.varieties:
+                        print(" \u2502        \u2514\u2500 " + v)
+
     def update_values(self):
         """Compute the character's values and skills."""
         # update primary skills base rank

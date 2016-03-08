@@ -20,6 +20,12 @@ class Value:
         self.base_rank = base_rank
         self.rank = 0
 
+    def get_CLI_rank(self):
+        """Return the real rank of the represented value as a string of
+        characters.
+        """
+        return str(int(self.get_full_rank()))
+
     def get_full_rank(self):
         """Return the full rank of the value.
 
@@ -87,9 +93,15 @@ class Attribute(Value):
         """Return the real rank of the represented attribute as a string of
         characters.
         """
-        rank = str(int(self.get_real_rank()))
-        if self.get_full_rank()%2 != 0:
-            rank += '+'
+        rank = None
+        if not self.invariant:
+            rank = str(int(self.get_real_rank()))
+            if self.get_full_rank()%2 != 0:
+                rank += '+'
+            else:
+                rank += ' '
+        else:
+            rank = '  '
         return rank
 
 class Skill(Attribute):
@@ -162,6 +174,20 @@ class Skill(Attribute):
         if self.specialization is not None:
             self.specialization.compute_base_rank()
 
+    def decrement_rank(self):
+        """Decrease the rank of the attribute by 1."""
+        if self.rank > 0 and not self.invariant and (
+            self.master_skill is None or
+            self.master_skill.get_full_rank() < self.get_full_rank()):
+            self.rank -= 1
+
+    def get_specialization(self):
+        """Return the specialization of the skill, if it exists."""
+        if not self.invariant:
+            return self.specialization
+        else:
+            warnings.warn("Non-specific skill.", Warning)
+
     def increment_rank(self):
         """Increase the rank of the attribute by 1."""
         if not self.invariant and (self.specialization is None or
@@ -182,16 +208,46 @@ class Skill(Attribute):
         else:
             return False
 
-    def decrement_rank(self):
-        """Decrease the rank of the attribute by 1."""
-        if self.rank > 0 and not self.invariant and (
-            self.master_skill is None or
-            self.master_skill.get_full_rank() < self.get_full_rank()):
-            self.rank -= 1
-
-    def get_specialization(self):
-        """Return the specialization of the skill, if it exists."""
-        if not self.invariant:
-            return self.specialization
+    def is_usable(self):
+        """Return True if this skill can be used by the character.
+        
+        A skill is usable if one of those conditions is true:
+        - it is not acquired;
+        - if acquired, at least one rank was invested in it;
+        - if specific with a usable specialization;
+        - is multiple with at least one variety.
+        """
+        if not self.acquired or self.rank != 0:
+            return True
+        elif (self.specialization is not None and
+                self.specialization.is_usable()):
+            return True
+        elif self.varieties is not None and len(self.varieties) != 0:
+            return True
         else:
-            warnings.warn("Non-specific skill.", Warning)
+            return False
+
+class Power(Attribute):
+    """Attribute-derived class for representing character's powers.
+
+    Instance variables:
+    cost -- String; short description of the cost for using the power (usually
+        expressed in PP, per time unit or not).
+    """
+
+    def __init__(self, cost, base_rank=0, invariant=False):
+        """Constructor.
+
+        Arguments:
+        cost -- Cost for activating the power.
+
+        Keyword arguments:
+        invariant -- True if the new attribute is an invariant (default False).
+        base_rank -- Base rank of the new attribute (default 0).
+        """
+        Attribute.__init__(self, base_rank, invariant=invariant)
+        self.cost = cost
+
+    def get_cost(self):
+        """Return the cost for activating the power."""
+        return self.cost

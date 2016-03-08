@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 import scox.value as value
+
 import zipfile
 import csv
 import io
@@ -113,6 +114,26 @@ class Profile:
                 self.secondary_skills[row['Name']].increase_rank(
                     int(row['Rank']))
 
+    def load_powers(self, powers):
+        """Load powers from the input power file.
+
+        Arguments:
+        powers -- CSV file containing powers.
+        """
+        reader = csv.DictReader(io.TextIOWrapper(powers))
+        for row in reader:
+            if row['Name'] in self.powers:
+                raise KeyError("Power " + row['Name'] + " already exists.")
+            else:
+                if row['Invariant'] == 'True':
+                    self.powers[row['Name']] = value.Power(
+                        row['Cost'],
+                        invariant=True)
+                else:
+                    self.powers[row['Name']] = value.Power(
+                        row['Cost'],
+                        base_rank = 2 * int(row['Rank']))
+
     def load_exotic_skills(self, e_skills):
         """Load exotic skills from the input skill file.
 
@@ -125,14 +146,6 @@ class Profile:
                 self.exotic_skills[row['Name']].increase_rank(int(row['Rank']))
             else:
                 raise KeyError("Skill " + row['Name'] + " not found.")
-
-    def load_powers(self, powers):
-        """Load powers from the input power file.
-
-        Arguments:
-        powers -- CSV file containing powers.
-        """
-        print("TODO") # TODO
 
     def load_side_values(self, values):
         """Load side values from the input value file.
