@@ -2,6 +2,7 @@
 
 import warnings
 
+
 class Value:
     """Base class for representing numerical values for characters and profiles
     in scox.
@@ -41,6 +42,7 @@ class Value:
     def set_rank(self, rank):
         """Set the rank of the value."""
         self.rank = rank
+
 
 class Attribute(Value):
     """Value-derived class for representing character's attributes.
@@ -104,6 +106,7 @@ class Attribute(Value):
             rank = '  '
         return rank
 
+
 class Skill(Attribute):
     """Attribute-derived class for representing character's skills.
 
@@ -119,7 +122,8 @@ class Skill(Attribute):
     """
 
     def __init__(self, governing_attribute=None, specific=False,
-        multiple=False, invariant=False, master_skill=None, acquired=False):
+                 multiple=False, invariant=False, master_skill=None,
+                 acquired=False):
         """Constructor.
 
         Keyword arguments:
@@ -226,6 +230,7 @@ class Skill(Attribute):
             return True
         else:
             return False
+
 
 class Power(Attribute):
     """Attribute-derived class for representing character's powers.

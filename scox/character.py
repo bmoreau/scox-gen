@@ -1,7 +1,9 @@
 #! /usr/bin/env python3
+# coding=utf-8
 
 import scox.value as value
 import scox.profile as profile
+
 
 class Character(profile.Profile):
     """Base class for representing characters in scox.

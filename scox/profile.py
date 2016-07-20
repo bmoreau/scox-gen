@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+# coding=utf-8
 
 import scox.value as value
 
@@ -7,6 +8,7 @@ import csv
 import io
 import warnings
 import collections
+
 
 class Profile:
     """Base class for representing a character's numerical values.
@@ -96,7 +98,7 @@ class Profile:
             if row['Name'] in self.secondary_skills:
                 self.secondary_skills[row['Name']].increase_rank(int(row['Rank']))
             # case where skill is a specialization / a variety
-            elif (row['Name'].split('_')[0] in self.secondary_skills):
+            elif row['Name'].split('_')[0] in self.secondary_skills:
                 sk = self.secondary_skills[row['Name'].split('_')[0]]
                 if sk.is_specific():
                     sk.get_specialization().increase_rank(int(row['Rank']))
@@ -105,7 +107,7 @@ class Profile:
                     sk.increase_rank(int(row['Rank']))
                 else:
                     warnings.warn("Non specific nor multiple skill; input" +
-                        "specialization or variety is ignored.", Warning)
+                                  "specialization or variety is ignored.", Warning)
             # case where skill does not exist - it is created
             else:
                 if not row['Name'] in self.secondary_skills:
