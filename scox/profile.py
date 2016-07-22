@@ -75,13 +75,14 @@ class Profile:
         """
         reader = csv.DictReader(io.TextIOWrapper(p_skills))
         for row in reader:
-            # case where skill exists
+            #  case where skill exists
             if row['Name'] in self.primary_skills:
                 self.primary_skills[row['Name']].increase_rank(int(row['Rank']))
             # case where skill is a specialization
             elif (row['Name'].split('_')[0] in self.primary_skills and
-              row['Name'].split('_')[1] == 'spe'):
-                self.primary_skills[row['Name'].split('_')[0]].get_specialization().increase_rank(int(row['Rank']))
+                    row['Name'].split('_')[1] == 'spe'):
+                self.primary_skills[row['Name'].split('_')[
+                    0]].get_specialization().increase_rank(int(row['Rank']))
             # case where skill does not exist
             else:
                 raise KeyError("Skill " + row['Name'] + " not found.")
@@ -94,9 +95,10 @@ class Profile:
         """
         reader = csv.DictReader(io.TextIOWrapper(s_skills))
         for row in reader:
-            # case where skill exists
+            #  case where skill exists
             if row['Name'] in self.secondary_skills:
-                self.secondary_skills[row['Name']].increase_rank(int(row['Rank']))
+                self.secondary_skills[row['Name']].increase_rank(
+                    int(row['Rank']))
             # case where skill is a specialization / a variety
             elif row['Name'].split('_')[0] in self.secondary_skills:
                 sk = self.secondary_skills[row['Name'].split('_')[0]]
@@ -107,7 +109,8 @@ class Profile:
                     sk.increase_rank(int(row['Rank']))
                 else:
                     warnings.warn("Non specific nor multiple skill; input" +
-                                  "specialization or variety is ignored.", Warning)
+                                  "specialization or variety is ignored.",
+                                  Warning)
             # case where skill does not exist - it is created
             else:
                 if not row['Name'] in self.secondary_skills:
@@ -134,7 +137,7 @@ class Profile:
                 else:
                     self.powers[row['Name']] = value.Power(
                         row['Cost'],
-                        base_rank = 2 * int(row['Rank']))
+                        base_rank=2 * int(row['Rank']))
 
     def load_exotic_skills(self, e_skills):
         """Load exotic skills from the input skill file.

@@ -75,12 +75,12 @@ class Attribute(Value):
         step -- Step by which the rank of the attribute will be increased.
         """
         if not self.invariant:
-          self.rank += step
+            self.rank += step
 
     def increment_rank(self):
         """Increase the rank of the attribute by 1."""
         if not self.invariant:
-          self.rank += 1
+            self.rank += 1
 
     def decrement_rank(self):
         """Decrease the rank of the attribute by 1."""
@@ -95,10 +95,9 @@ class Attribute(Value):
         """Return the real rank of the represented attribute as a string of
         characters.
         """
-        rank = None
         if not self.invariant:
             rank = str(int(self.get_real_rank()))
-            if self.get_full_rank()%2 != 0:
+            if self.get_full_rank() % 2 != 0:
                 rank += '+'
             else:
                 rank += ' '
@@ -181,8 +180,8 @@ class Skill(Attribute):
     def decrement_rank(self):
         """Decrease the rank of the attribute by 1."""
         if self.rank > 0 and not self.invariant and (
-            self.master_skill is None or
-            self.master_skill.get_full_rank() < self.get_full_rank()):
+                self.master_skill is None or
+                self.master_skill.get_full_rank() < self.get_full_rank()):
             self.rank -= 1
 
     def get_specialization(self):
@@ -194,9 +193,10 @@ class Skill(Attribute):
 
     def increment_rank(self):
         """Increase the rank of the attribute by 1."""
-        if not self.invariant and (self.specialization is None or
-            self.specialization.get_full_rank() > self.get_full_rank()):
-          self.rank += 1
+        if not self.invariant and (
+                self.specialization is None or
+                self.specialization.get_full_rank() > self.get_full_rank()):
+            self.rank += 1
 
     def is_multiple(self):
         """Return True if this skill is multiple."""
