@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+# coding=utf-8
 
 import warnings
 
@@ -21,7 +22,7 @@ class Value:
         self.base_rank = base_rank
         self.rank = 0
 
-    def get_CLI_rank(self):
+    def get_cli_rank(self):
         """Return the real rank of the represented value as a string of
         characters.
         """
@@ -91,7 +92,7 @@ class Attribute(Value):
         """Return the real rank of the represented attribute."""
         return self.get_full_rank() / 2.0
 
-    def get_CLI_rank(self):
+    def get_cli_rank(self):
         """Return the real rank of the represented attribute as a string of
         characters.
         """
