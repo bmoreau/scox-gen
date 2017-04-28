@@ -9,4 +9,7 @@ setup(
       author='Bertrand Moreau',
       url='https://github.com/bmoreau/scox-gen',
       packages=['scox'],
+      package_data={'scox': ['profiles/demons/*.scx',
+                             'profiles/angels/*.scx',
+                             'profiles/archetypes/*.scx']},
 )
