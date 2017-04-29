@@ -15,13 +15,10 @@ class Character(profile.Profile):
     Instance variables:
     level -- Level of the character in his / her hierarchy (default 0).
     name -- Name of the character.
-    nature -- Nature of the character; either 'Angel' or 'Demon'.
     notes -- Speak your mind freely.
     side_values -- Map of additional character defining values.
-    superior -- Hierarchical superior of the character.
 
     Methods:
-    apply_profile -- Apply the modifications listed in an input profile.
     init_attributes -- Initialize the character's attributes.
     init_skills -- Initialize the character's skills.
     init_values -- Initialize the character's attributes.
@@ -40,11 +37,9 @@ class Character(profile.Profile):
         level -- Level of the new character (default 0).
         nature -- Nature of the new character (default 'Demon').
         """
-        profile.Profile.__init__(self)
+        profile.Profile.__init__(self, nature)
         self.name = name
         self.level = level
-        self.nature = nature
-        self.superior = None
         self.init_attributes()
         self.init_skills()
         self.init_values()

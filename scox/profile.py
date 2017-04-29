@@ -8,6 +8,14 @@ import csv
 import io
 import warnings
 import collections
+import os
+
+ARCHETYPE_PROFILE_PATH = os.path.join(os.path.dirname(__file__), 'profiles',
+                                      'archetypes')
+ANGEL_PROFILE_PATH = os.path.join(os.path.dirname(__file__), 'profiles',
+                                  'angels')
+DEMON_PROFILE_PATH = os.path.join(os.path.dirname(__file__), 'profiles',
+                                  'demons')
 
 
 class Profile:
@@ -23,24 +31,82 @@ class Profile:
     primary_skills -- Map of profile's defining skills.
     secondary_skills -- Map of profile's slightly less defining skills.
     exotic_skills -- Map of profile's unusual skills.
+    nature -- Nature of the profile; either 'Angel' or 'Demon'.
+    superior -- Hierarchical superior of the character.
+    power_table -- A map used for drawing random powers for this profile.
     """
 
-    def __init__(self):
-        """Constructor."""
+    def __init__(self, nature):
+        """Constructor.
+
+        Arguments:
+        name -- Nature of the profile.
+        """
         self.attributes = collections.OrderedDict()
         self.values = collections.OrderedDict()
         self.powers = collections.OrderedDict()
         self.primary_skills = collections.OrderedDict()
         self.secondary_skills = collections.OrderedDict()
         self.exotic_skills = collections.OrderedDict()
+        self.nature = nature
+        self.superior = None
+        self.power_table = None
 
-    def load_profile(self, profile):
+    def generate_power_table(self, table):
+        """Generate a table from which random powers can be drawn.
+
+        Arguments:
+        table -- CSV file containing information for building the table.
+        """
+        self.power_table = {}
+        reader = csv.DictReader(io.TextIOWrapper(table), delimiter=';')
+        for row in reader:
+            val = row['value'].strip('[]').split(',')
+            powers = {}  # building powers dictionary
+            power_items = row['powers'].strip('{}').split('|')
+            for item in power_items:
+                k, v = item.split(':')
+                powers[k] = v.strip('[]').split(',')
+            pp = int(row['pp'])
+            bonus = {}  # building bonus dictionary
+            bonus_str = row['bonus'].strip('{}')
+            if len(bonus_str) > 0:
+                bonus_items = bonus_str.split(',')
+                for item in bonus_items:
+                    k, v = item.split(':')
+                    bonus[k] = int(v)
+            if self.superior.title() in bonus.keys():
+                pp = bonus[self.superior.title()]
+            for i in val:
+                self.power_table[int(i)] = [powers, pp]
+
+    def get_nature(self):
+        """Return the profile's nature."""
+        return self.nature
+
+    def get_superior(self):
+        """Return the profile's nature."""
+        return self.superior
+
+    def load_profile(self, profile, archetype=False):
         """Load a profile from the input profile archive.
 
         Arguments:
-        profile -- Path to a profile.scx archive.
+        profile -- Name of a profile archive.
+        archetype -- True if the loaded profile is an archetype (default:
+        False).
         """
-        with zipfile.ZipFile(profile) as p:
+        archive = profile + '.scx'
+        if archetype and self.power_table is None:
+            file_path = os.path.join(ARCHETYPE_PROFILE_PATH, archive)
+        elif self.nature.upper() == 'DEMON' and self.superior is None:
+            file_path = os.path.join(DEMON_PROFILE_PATH, archive)
+        elif self.nature.upper() == 'ANGEL' and self.superior is None:
+            file_path = os.path.join(ANGEL_PROFILE_PATH, archive)
+        else:
+            raise Exception("Profile " + archive + " not found or superior "
+                                                   "already defined or archetype already loaded.")
+        with zipfile.ZipFile(file_path) as p:
             with p.open('attributes.csv') as attr:
                 self.load_attributes(attr)
             with p.open('values.csv') as val:
@@ -53,6 +119,14 @@ class Profile:
                 self.load_exotic_skills(e_skills)
             with p.open('powers.csv') as powers:
                 self.load_powers(powers)
+            if archetype and self.nature.upper() == 'DEMON':
+                with p.open('table_demon.csv') as table:
+                    self.generate_power_table(table)
+            elif archetype and self.nature.upper() == 'ANGEL':
+                with p.open('table_angel.csv') as table:
+                    self.generate_power_table(table)
+            else:
+                self.superior = profile
 
     def load_attributes(self, attr):
         """Load attributes from the input attribute file.
@@ -80,7 +154,7 @@ class Profile:
                 self.primary_skills[row['Name']].increase_rank(int(row['Rank']))
             # case where skill is a specialization
             elif (row['Name'].split('_')[0] in self.primary_skills and
-                    row['Name'].split('_')[1] == 'spe'):
+                          row['Name'].split('_')[1] == 'spe'):
                 self.primary_skills[row['Name'].split('_')[
                     0]].get_specialization().increase_rank(int(row['Rank']))
             # case where skill does not exist
