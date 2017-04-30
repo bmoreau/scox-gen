@@ -36,6 +36,14 @@ class Value:
         """
         return self.rank + self.base_rank
 
+    def increase_rank(self, step):
+        """Increase the rank of the value by step.
+
+        Arguments:
+        step -- Step by which the rank of the attribute will be increased.
+        """
+        self.rank += step
+
     def set_base_rank(self, rank):
         """Set the base rank of the value."""
         self.base_rank = rank
@@ -70,7 +78,7 @@ class Attribute(Value):
         self.invariant = invariant
 
     def increase_rank(self, step):
-        """Increase the rank of the attribute by 1.
+        """Increase the rank of the attribute by step.
         
         Arguments:
         step -- Step by which the rank of the attribute will be increased.

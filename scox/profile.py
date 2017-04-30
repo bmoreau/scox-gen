@@ -9,6 +9,7 @@ import io
 import warnings
 import collections
 import os
+import random
 
 ARCHETYPE_PROFILE_PATH = os.path.join(os.path.dirname(__file__), 'profiles',
                                       'archetypes')
@@ -52,6 +53,41 @@ class Profile:
         self.superior = None
         self.power_table = None
 
+    def draw_from_table(self, iterations):
+        """Draw random elements from the profile power table and apply the
+        results.
+
+        Arguments:
+        iterations -- Number of successes required before ending the draws.
+        """
+        if self.power_table is not None:
+            it = 0
+            keys = [k for k in self.power_table.keys()]
+            while it < iterations:
+                roll = self.power_table[random.choice(keys)]
+                reroll = False
+                for i in roll[0].keys():
+                    if i in self.powers:
+                        reroll = True  # roll is void if power already exists
+                        break
+                if not reroll:
+                    # update profile's PP value
+                    self.values['PP'].increase_rank(int(roll[1]))
+                    # add new powers to the profile
+                    for k in roll[0].keys():
+                        p = roll[0][k]
+                        if p[0] == 'True':
+                            self.powers[k] = value.Power(p[2], invariant=True)
+                        else:
+                            self.powers[k] = value.Power(
+                                p[2], base_rank=2 * int(p[1]))
+                    it += 1  # current iteration is successful
+                else:
+                    break  # exit current iteration
+        else:
+            raise Exception("Power table does not exist; please load an "
+                            "archetype profile first.")
+
     def generate_power_table(self, table):
         """Generate a table from which random powers can be drawn.
 
@@ -66,7 +102,7 @@ class Profile:
             power_items = row['powers'].strip('{}').split('|')
             for item in power_items:
                 k, v = item.split(':')
-                powers[k] = v.strip('[]').split(',')
+                powers[k.strip('"')] = v.strip('[]').replace('"', '').split(',')
             pp = int(row['pp'])
             bonus = {}  # building bonus dictionary
             bonus_str = row['bonus'].strip('{}')
@@ -105,7 +141,7 @@ class Profile:
             file_path = os.path.join(ANGEL_PROFILE_PATH, archive)
         else:
             raise Exception("Profile " + archive + " not found or superior "
-                                                   "already defined or archetype already loaded.")
+                            "already defined or archetype already loaded.")
         with zipfile.ZipFile(file_path) as p:
             with p.open('attributes.csv') as attr:
                 self.load_attributes(attr)
@@ -154,7 +190,7 @@ class Profile:
                 self.primary_skills[row['Name']].increase_rank(int(row['Rank']))
             # case where skill is a specialization
             elif (row['Name'].split('_')[0] in self.primary_skills and
-                          row['Name'].split('_')[1] == 'spe'):
+                    row['Name'].split('_')[1] == 'spe'):
                 self.primary_skills[row['Name'].split('_')[
                     0]].get_specialization().increase_rank(int(row['Rank']))
             # case where skill does not exist
