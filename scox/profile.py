@@ -132,7 +132,7 @@ class Profile:
         archetype -- True if the loaded profile is an archetype (default:
         False).
         """
-        archive = profile + '.scx'
+        archive = profile.lower() + '.scx'
         if archetype and self.power_table is None:
             file_path = os.path.join(ARCHETYPE_PROFILE_PATH, archive)
         elif self.nature.upper() == 'DEMON' and self.superior is None:

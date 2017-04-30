@@ -27,7 +27,8 @@ class Character(profile.Profile):
         ranks of self.attributes.
     """
 
-    def __init__(self, name, level=0, nature='Demon'):
+    def __init__(self, name, level=0, nature='Demon', archetype='Corrupteur',
+                 superior='Scox'):
         """Constructor.
 
         Arguments:
@@ -36,6 +37,8 @@ class Character(profile.Profile):
         Keyword arguments:
         level -- Level of the new character (default 0).
         nature -- Nature of the new character (default 'Demon').
+        archetype -- Archetype of the character (default 'Corrupteur').
+        superior -- Superior of the character (default 'Scox').
         """
         profile.Profile.__init__(self, nature)
         self.name = name
@@ -43,6 +46,9 @@ class Character(profile.Profile):
         self.init_attributes()
         self.init_skills()
         self.init_values()
+        self.load_profile(superior)
+        self.load_profile(archetype, True)
+        self.draw_from_table(2)
         self.update_values()
 
     def init_attributes(self):
