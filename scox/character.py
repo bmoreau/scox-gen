@@ -3,6 +3,20 @@
 
 import scox.value as value
 import scox.profile as profile
+import pickle
+
+
+def load_from_pickle(filepath):
+    """Load a Character instance from a pickle file.
+
+    Args:
+        filepath: path to a pickle file containing character information.
+
+    Returns: a Character instance.
+    """
+    with open(filepath, mode='rb') as f:
+        c = pickle.load(f)
+        return c
 
 
 class Character(profile.Profile):
@@ -19,6 +33,7 @@ class Character(profile.Profile):
     side_values -- Map of additional character defining values.
 
     Methods:
+    export -- Serialize the character as a pickle file.
     init_attributes -- Initialize the character's attributes.
     init_skills -- Initialize the character's skills.
     init_values -- Initialize the character's attributes.
@@ -27,29 +42,37 @@ class Character(profile.Profile):
         ranks of self.attributes.
     """
 
-    def __init__(self, name, level=0, nature='Demon', archetype='Corrupteur',
-                 superior='Scox'):
+    def __init__(self, name, nature, archetype, superior, level=0):
         """Constructor.
 
         Arguments:
         name -- Name of the new character.
+        nature -- Nature of the new character.
+        archetype -- Archetype of the character.
+        superior -- Superior of the character.
 
         Keyword arguments:
         level -- Level of the new character (default 0).
-        nature -- Nature of the new character (default 'Demon').
-        archetype -- Archetype of the character (default 'Corrupteur').
-        superior -- Superior of the character (default 'Scox').
         """
-        profile.Profile.__init__(self, nature)
+        profile.Profile.__init__(self, nature.capitalize())
         self.name = name
         self.level = level
         self.init_attributes()
         self.init_skills()
         self.init_values()
-        self.load_profile(superior)
-        self.load_profile(archetype, True)
+        self.load_profile(superior.title())
+        self.load_profile(archetype.capitalize(), True)
         self.draw_from_table(2)
         self.update_values()
+
+    def export(self, path):
+        """Serialize the character as a pickle file.
+
+        Args:
+            path: path to a folder where to write the resulting pickle file.
+        """
+        with open(path, mode='wb') as f:
+            pickle.dump(self, f)
 
     def init_attributes(self):
         """Initialize the character's attributes."""
