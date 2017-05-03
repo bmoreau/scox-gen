@@ -41,15 +41,17 @@ def scx(ctx):
 @scx.group()
 @click.pass_obj
 def team(cfg):
-    """Group of commands for manipulating teams."""
+    """Commands for manipulating teams."""
     pass
 
 
 @team.command()
-@click.option('--name', prompt='Name of the team', type=click.STRING)
-@click.option('--location', prompt='Where should the team folder be created',
+@click.option('--name', prompt='Name', type=click.STRING,
+              help='Name of the created team.')
+@click.option('--location', prompt='Team folder location',
               type=click.Path(file_okay=False, writable=True),
-              default=SCOX_HOME)
+              default=SCOX_HOME, help='Where the team folder should be '
+                                      'located.')
 @click.pass_obj
 def create(cfg, name, location):
     """Create a new team and select it."""
@@ -76,7 +78,7 @@ def select(cfg, name):
 
 @team.command()
 @click.argument('name', type=click.STRING)
-@click.confirmation_option(help='Are you sure you want to delete this team?')
+@click.confirmation_option(help='Skip the confirmation step.')
 @click.pass_obj
 def delete(cfg, name):
     """Delete an existing team."""
@@ -113,16 +115,21 @@ def list(cfg):
 @scx.group()
 @click.pass_obj
 def character(cfg):
-    """Group of commands for manipulating characters."""
+    """Commands for manipulating characters."""
     pass
 
 
 @character.command()
-@click.option('--name', type=click.STRING, prompt='Name')
+@click.option('--name', type=click.STRING, prompt='Name',
+              help='Name of the character. Be creative.')
 @click.option('--nature', type=click.Choice(['angel', 'demon']),
-              default='demon', prompt='Nature')
-@click.option('--superior', default="Scox", prompt='Superior')
-@click.option('--archetype', default="Corrupteur", prompt='Archetype')
+              default='demon', prompt='Nature',
+              help='Nature of the character.')
+@click.option('--superior', default="Scox", prompt='Superior',
+              help='Hierarchical superior of the character. The corresponding'
+                   'profile for attributes, powers and skills applies.')
+@click.option('--archetype', default="Corrupteur", prompt='Archetype',
+              help='Archetype of the character.')
 @click.pass_obj
 def create(cfg, name, nature, superior, archetype):
     """Create a new character."""
@@ -133,9 +140,8 @@ def create(cfg, name, nature, superior, archetype):
 
 
 @character.command()
-@click.argument('name')
-@click.confirmation_option(help='Are you sure you want to delete this '
-                                'character?')
+@click.argument('name', type=click.STRING)
+@click.confirmation_option(help='Skip the confirmation step.')
 @click.pass_obj
 def delete(cfg, name):
     """Delete an existing character."""
@@ -150,14 +156,21 @@ def delete(cfg, name):
 @click.pass_obj
 def list(cfg):
     """Display the list of existing characters."""
+    ignored = 0
     for i in os.listdir(cfg.teams[cfg.selected]):
         filepath = os.path.join(cfg.teams[cfg.selected], i)
-        c = chc.load_from_pickle(filepath)
-        print(c.get_name() + " - " + c.get_superior())
+        try:
+            c = chc.load_from_pickle(filepath)
+            print(c.get_name() + " - " + c.get_superior())
+        except Exception:
+            ignored += 1
+    if ignored > 0:
+        print(str(ignored) + " file(s) could not be loaded in selected team "
+                             "folder.")
 
 
 @character.command()
-@click.argument('name')
+@click.argument('name', type=click.STRING)
 @click.pass_obj
 def show(cfg, name):
     """Display the profile of an existing character."""
