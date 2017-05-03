@@ -211,7 +211,7 @@ class Character(profile.Profile):
         """Print the character's usable exotic skills."""
         for e in self.exotic_skills:
             if self.exotic_skills[e].is_usable():
-                print(" \u2502    \u2514\u2500 " + e +
+                print(" \u2502    \u2514\u2500 " + e + " " +
                       self.exotic_skills[e].get_cli_rank())
 
     def print_powers(self):

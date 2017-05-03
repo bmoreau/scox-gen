@@ -39,8 +39,7 @@ def scx(ctx):
 
 
 @scx.group()
-@click.pass_obj
-def team(cfg):
+def team():
     """Commands for manipulating teams."""
     pass
 
@@ -106,15 +105,14 @@ def delete(cfg, name):
 
 @team.command()
 @click.pass_obj
-def list(cfg):
+def ls(cfg):
     """Display the list of existing teams."""
     for k in cfg.teams.keys():
         print(k + " (" + cfg.teams[k] + ")")
 
 
 @scx.group()
-@click.pass_obj
-def character(cfg):
+def character():
     """Commands for manipulating characters."""
     pass
 
@@ -154,7 +152,7 @@ def delete(cfg, name):
 
 @character.command()
 @click.pass_obj
-def list(cfg):
+def ls(cfg):
     """Display the list of existing characters."""
     ignored = 0
     for i in os.listdir(cfg.teams[cfg.selected]):
