@@ -136,7 +136,7 @@ def create(cfg, name, nature, superior, archetype):
     new = chc.Character(name, nature, archetype, superior)
     filename = name + '.pickle'
     filepath = os.path.join(cfg.teams[cfg.selected], filename)
-    new.export(filepath)
+    new.export_as_pickle(filepath)
 
 
 @character.command()

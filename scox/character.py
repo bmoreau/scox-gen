@@ -65,7 +65,7 @@ class Character(profile.Profile):
         self.draw_from_table(2)
         self.update_values()
 
-    def export(self, path):
+    def export_as_pickle(self, path):
         """Serialize the character as a pickle file.
 
         Args:
