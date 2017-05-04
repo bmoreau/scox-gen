@@ -2,7 +2,7 @@
 Générateur de personnages (joueurs et non-joueurs) pour INS/MV 4.
 
 ## Le principe en deux mots
-__scox-gen__ utilise les profils de création rapide proposés dans le livre de base de la quatrième édition d'INS/MV (pages 8 à 19), ainsi que ceux fournis dans les annexes de l'extension _Sur la Terre comme au ciel_ (pages 125 à 128).
+__scox-gen__ permet de créer rapidement des équipes d'anges et de démons jouables pour In Nomine Satanis / Magna Veritas 4. Il utilise les profils de création rapide proposés dans le livre de base de la quatrième édition d'INS/MV (pages 8 à 19), ainsi que ceux fournis dans les annexes de l'extension _Sur la Terre comme au ciel_ (pages 125 à 128).
 
 Il ne s'agit en aucun cas d'un logiciel officiel, juste d'un outil codé par un gars qui en avait marre de perdre du temps à équilibrer ses pré-tirés (et qui le perd désormais [à automatiser le processus](https://xkcd.com/1319/)).
 

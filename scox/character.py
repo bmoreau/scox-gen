@@ -60,8 +60,8 @@ class Character(profile.Profile):
         self.init_attributes()
         self.init_skills()
         self.init_values()
-        self.load_profile(superior.title())
-        self.load_profile(archetype.capitalize(), True)
+        self.load_profile(superior)
+        self.load_profile(archetype, True)
         self.draw_from_table(2)
         self.update_values()
 

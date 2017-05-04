@@ -11,13 +11,6 @@ import collections
 import os
 import random
 
-ARCHETYPE_PROFILE_PATH = os.path.join(os.path.dirname(__file__), 'profiles',
-                                      'archetypes')
-ANGEL_PROFILE_PATH = os.path.join(os.path.dirname(__file__), 'profiles',
-                                  'angels')
-DEMON_PROFILE_PATH = os.path.join(os.path.dirname(__file__), 'profiles',
-                                  'demons')
-
 
 class Profile:
     """Base class for representing a character's numerical values.
@@ -132,17 +125,7 @@ class Profile:
         archetype -- True if the loaded profile is an archetype (default:
         False).
         """
-        archive = profile.lower() + '.scx'
-        if archetype and self.power_table is None:
-            file_path = os.path.join(ARCHETYPE_PROFILE_PATH, archive)
-        elif self.nature.upper() == 'DEMON' and self.superior is None:
-            file_path = os.path.join(DEMON_PROFILE_PATH, archive)
-        elif self.nature.upper() == 'ANGEL' and self.superior is None:
-            file_path = os.path.join(ANGEL_PROFILE_PATH, archive)
-        else:
-            raise Exception("Profile " + archive + " not found or superior "
-                            "already defined or archetype already loaded.")
-        with zipfile.ZipFile(file_path) as p:
+        with zipfile.ZipFile(profile) as p:
             with p.open('attributes.csv') as attr:
                 self.load_attributes(attr)
             with p.open('values.csv') as val:
@@ -162,7 +145,8 @@ class Profile:
                 with p.open('table_angel.csv') as table:
                     self.generate_power_table(table)
             else:
-                self.superior = profile
+                self.superior =\
+                    profile.split(os.path.sep)[-1].split('.')[0].title()
 
     def load_attributes(self, attr):
         """Load attributes from the input attribute file.

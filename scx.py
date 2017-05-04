@@ -10,6 +10,12 @@ import click
 
 SCOX_HOME = os.path.join(os.path.expanduser('~'), '.scox-gen')
 CONFIG_FILE = os.path.join(SCOX_HOME, 'config.json')
+ARCHETYPE_PROFILE_PATH =\
+    os.path.join(os.path.dirname(__file__), 'scox', 'profiles', 'archetypes')
+ANGEL_PROFILE_PATH =\
+    os.path.join(os.path.dirname(__file__), 'scox', 'profiles', 'angels')
+DEMON_PROFILE_PATH =\
+    os.path.join(os.path.dirname(__file__), 'scox', 'profiles', 'demons')
 
 
 class Config:
@@ -131,10 +137,16 @@ def character():
 @click.pass_obj
 def create(cfg, name, nature, superior, archetype):
     """Create a new character."""
+    archetype = os.path.join(ARCHETYPE_PROFILE_PATH,
+                             archetype.lower() + '.scx')
+    if nature == 'demon':
+        superior = os.path.join(DEMON_PROFILE_PATH, superior.lower() + '.scx')
+    else:
+        superior = os.path.join(ANGEL_PROFILE_PATH, superior.lower() + '.scx')
     new = chc.Character(name, nature, archetype, superior)
     filename = name + '.pickle'
-    filepath = os.path.join(cfg.teams[cfg.selected], filename)
-    new.export_as_pickle(filepath)
+    filename = os.path.join(cfg.teams[cfg.selected], filename)
+    new.export_as_pickle(filename)
 
 
 @character.command()
@@ -143,9 +155,9 @@ def create(cfg, name, nature, superior, archetype):
 @click.pass_obj
 def delete(cfg, name):
     """Delete an existing character."""
-    filepath = os.path.join(cfg.teams[cfg.selected], name + '.pickle')
-    if os.path.exists(filepath):
-        os.remove(filepath)
+    filename = os.path.join(cfg.teams[cfg.selected], name + '.pickle')
+    if os.path.exists(filename):
+        os.remove(filename)
     else:
         print(name + " does not exist in selected team.")
 
