@@ -6,6 +6,7 @@ import os
 import shutil
 import json
 import click
+import pprint
 
 
 SCOX_HOME = os.path.join(os.path.expanduser('~'), '.scox-gen')
@@ -42,6 +43,24 @@ class Config:
 def scx(ctx):
     """A character generator for INS-MV 4."""
     ctx.obj = Config()
+
+
+@scx.command()
+@click.argument('category', type=click.Choice(['demon', 'angel', 'arch']))
+def profiles(category):
+    """Display the list of all available profiles for a given category."""
+    if category == 'demon':
+        folder = DEMON_PROFILE_PATH
+    elif category == 'angel':
+        folder = ANGEL_PROFILE_PATH
+    else:
+        folder = ARCHETYPE_PROFILE_PATH
+    profile_list = []
+    for f in os.listdir(folder):
+        if f.endswith('.scx'):
+            profile_list.append(f.split('.')[0].title())
+    profile_list.sort()
+    pprint.pprint(profile_list, compact=True)
 
 
 @scx.group()
@@ -168,9 +187,9 @@ def ls(cfg):
     """Display the list of existing characters."""
     ignored = 0
     for i in os.listdir(cfg.teams[cfg.selected]):
-        filepath = os.path.join(cfg.teams[cfg.selected], i)
+        file_path = os.path.join(cfg.teams[cfg.selected], i)
         try:
-            c = chc.load_from_pickle(filepath)
+            c = chc.load_from_pickle(file_path)
             print(c.get_name() + " - " + c.get_superior())
         except Exception:
             ignored += 1
