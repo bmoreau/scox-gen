@@ -8,14 +8,13 @@ import json
 import click
 import pprint
 
-
 SCOX_HOME = os.path.join(os.path.expanduser('~'), '.scox-gen')
 CONFIG_FILE = os.path.join(SCOX_HOME, 'config.json')
-ARCHETYPE_PROFILE_PATH =\
+ARCHETYPE_PROFILE_PATH = \
     os.path.join(os.path.dirname(__file__), 'scox', 'profiles', 'archetypes')
-ANGEL_PROFILE_PATH =\
+ANGEL_PROFILE_PATH = \
     os.path.join(os.path.dirname(__file__), 'scox', 'profiles', 'angels')
-DEMON_PROFILE_PATH =\
+DEMON_PROFILE_PATH = \
     os.path.join(os.path.dirname(__file__), 'scox', 'profiles', 'demons')
 
 
@@ -59,8 +58,14 @@ def profiles(category):
     for f in os.listdir(folder):
         if f.endswith('.scx'):
             profile_list.append(f.split('.')[0].title())
+    # compact printing
     profile_list.sort()
-    pprint.pprint(profile_list, compact=True)
+    it = iter(profile_list)
+    for i in it:
+        try:
+            print('{:<30}{}'.format(i, next(it)))
+        except StopIteration:
+            print('{:<30}'.format(i))
 
 
 @scx.group()
