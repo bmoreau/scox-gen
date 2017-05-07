@@ -4,6 +4,27 @@
 import warnings
 
 
+def format_attribute(name, val, lng):
+    """Format a string for displaying the name and value of an attribute.
+
+    Args:
+        name: name of the attribute to display.
+        val: value of the attribute to display.
+        lng: length of the string to be returned, in number of
+        characters. Blank space will be padded with '-' characters.
+
+    Returns: a string.
+    """
+    name += ' '
+    if val is not None:
+        val = ' ' + val
+        lng -= len(val)
+        return '{:-<{pad}.{trunc}}{}'.format(
+            name, val, pad=lng, trunc=lng)
+    else:
+        return '{:<{pad}.{trunc}}'.format(name, pad=lng, trunc=lng)
+
+
 class Value:
     """Base class for representing numerical values for characters and profiles
     in scox.
@@ -111,7 +132,7 @@ class Attribute(Value):
             else:
                 rank += ' '
         else:
-            rank = '  '
+            rank = None
         return rank
 
 

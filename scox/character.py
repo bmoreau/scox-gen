@@ -179,6 +179,14 @@ class Character(profile.Profile):
         self.values["BF"] = value.Value(0)
         self.values["MS"] = value.Value(0)
 
+    def get_attributes(self):
+        """Return the character's attributes."""
+        return self.attributes
+
+    def get_exotic_skills(self):
+        """Return the character's exotic skills."""
+        return self.exotic_skills
+
     def get_level(self):
         """Return the character's level."""
         return self.level
@@ -187,64 +195,21 @@ class Character(profile.Profile):
         """Return the character's name."""
         return self.name
 
-    def print_cli(self):
-        """Print the character's complete profile to the command line."""
-        print(self.get_name() + " - Grade " + str(self.level))
-        print(" \u251c\u2500 Attributs")
-        for a in self.attributes:
-            print(" \u2502    \u2514\u2500 " + a + " " +
-                  self.attributes[a].get_cli_rank())
-        print(" \u251c\u2500 Valeurs annexes")
-        for v in self.values:
-            print(" \u2502    \u2514\u2500 " + v + " " +
-                  self.values[v].get_cli_rank())
-        print(" \u251c\u2500 Talents principaux")
-        self.print_primary_skills()
-        print(" \u251c\u2500 Talents exotiques")
-        self.print_exotic_skills()
-        print(" \u251c\u2500 Talents secondaires")
-        self.print_secondary_skills()
-        print(" \u2514\u2500 Pouvoirs")
-        self.print_powers()
+    def get_powers(self):
+        """Return the character's powers."""
+        return self.powers
 
-    def print_exotic_skills(self):
-        """Print the character's usable exotic skills."""
-        for e in self.exotic_skills:
-            if self.exotic_skills[e].is_usable():
-                print(" \u2502    \u2514\u2500 " + e + " " +
-                      self.exotic_skills[e].get_cli_rank())
+    def get_primary_skills(self):
+        """Return the character's primary skills."""
+        return self.primary_skills
 
-    def print_powers(self):
-        """Print the character's powers."""
-        for p in self.powers:
-            print("      \u2514\u2500 " + p + " " +
-                  self.powers[p].get_cli_rank() + " " +
-                  self.powers[p].get_cost())
+    def get_secondary_skills(self):
+        """Return the character's secondary skills."""
+        return self.secondary_skills
 
-    def print_primary_skills(self):
-        """Print the character's usable primary skills."""
-        for p in self.primary_skills:
-            sk = self.primary_skills[p]
-            if sk.is_usable():
-                print(" \u2502    \u2514\u2500 " + p + " " +
-                      sk.get_cli_rank())
-                if sk.is_specific():
-                    print(" \u2502        \u2514\u2500 " + p + "_spe " +
-                          sk.get_specialization().get_cli_rank())
-
-    def print_secondary_skills(self):
-        """Print the character's usable secondary skills."""
-        for s in self.secondary_skills:
-            sk = self.secondary_skills[s]
-            if sk.is_usable():
-                print(" \u2502    \u2514\u2500 " + s + " " +
-                      sk.get_cli_rank())
-                if sk.is_specific():
-                    print(" \u2502        \u2514\u2500 " + s + "_spe " +
-                          sk.get_specialization().get_cli_rank())
-                elif sk.is_multiple():
-                    for v in sk.varieties:
-                        print(" \u2502        \u2514\u2500 " + v)
+    def get_side_values(self):
+        """Return the character's side values."""
+        return self.values
 
     def update_values(self):
         """Compute the character's values and skills."""
