@@ -208,9 +208,9 @@ def ls(cfg):
 @click.pass_obj
 def show(cfg, name):
     """Display the profile of an existing character."""
-    filepath = os.path.join(cfg.teams[cfg.selected], name + '.pickle')
-    if os.path.exists(filepath):
-        print_cli(chc.load_from_pickle(filepath))
+    file_path = os.path.join(cfg.teams[cfg.selected], name + '.pickle')
+    if os.path.exists(file_path):
+        print_cli(chc.load_from_pickle(file_path))
     else:
         print(name + " does not exist in selected team.")
 
