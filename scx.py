@@ -7,6 +7,7 @@ import os
 import shutil
 import json
 import click
+from colorama import Fore, Style
 
 SCOX_HOME = os.path.join(os.path.expanduser('~'), '.scox-gen')
 CONFIG_FILE = os.path.join(SCOX_HOME, 'config.json')
@@ -195,7 +196,10 @@ def ls(cfg):
         file_path = os.path.join(cfg.teams[cfg.selected], i)
         try:
             c = chc.load_from_pickle(file_path)
-            print(c.get_name() + " - " + c.get_superior())
+            clr = (Fore.RED if c.get_nature() == 'Demon' else Fore.LIGHTBLUE_EX)
+            print(clr + Style.BRIGHT + c.get_name() +
+                  Style.NORMAL + " - " + c.get_superior() +
+                  Style.RESET_ALL)
         except Exception:
             ignored += 1
     if ignored > 0:

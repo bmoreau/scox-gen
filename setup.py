@@ -15,7 +15,8 @@ setup(
     package_data={'scox': ['profiles/demons/*.scx',
                            'profiles/angels/*.scx',
                            'profiles/archetypes/*.scx']},
-    install_requires=['Click'],
+    install_requires=['Click',
+                      'colorama'],
     entry_points='''
             [console_scripts]
             scx=scx:scx
