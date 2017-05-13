@@ -199,7 +199,8 @@ class Profile:
                 if sk.is_specific():
                     sk.get_specialization().increase_rank(int(row['Rank']))
                 elif sk.is_multiple():
-                    sk.add_variety(row['Name'].split('_')[1])
+                    sk.add_variety(row['Name'].split('_')[1],
+                                   row['Name'].split('_')[0])
                     sk.increase_rank(int(row['Rank']))
                 else:
                     warnings.warn("Non specific nor multiple skill; input" +

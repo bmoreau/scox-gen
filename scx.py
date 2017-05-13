@@ -222,24 +222,35 @@ def show(cfg, name):
 def print_cli(chc_profile):
     """Print the character's complete profile to the command line."""
     print("\n")
-    print("\u250C\u2500\u2500 " + chc_profile.get_name() + " \u2500 Grade " +
-          str(chc_profile.get_level()) + " \u2500 " + chc_profile.get_superior()
+    print("\u250C\u2500\u2500 " +
+          chc_profile.get_name() +
+          " \u2500 " +
+          "Grade " +
+          str(chc_profile.get_level()) +
+          " \u2500 " +
+          chc_profile.get_superior()
           )
     print("\u2502")
-    print("\u251c\u2500\u2500 Attributs \u2500\u2500\u2500\u2500\u2500"
-          "\u2500\u2500\u2500\u2500\u2500\u2500 Valeurs annexes")
+    print("\u251c\u2500\u2500 " + "Attributs" +
+          " \u2500\u2500\u2500\u2500\u2500"
+          "\u2500\u2500\u2500\u2500\u2500\u2500 " +
+          "Valeurs annexes")
     print_attributes(chc_profile)
     print("\u2502")
-    print("\u251c\u2500\u2500 Talents principaux")
+    print("\u251c\u2500\u2500 " +
+          "Talents principaux")
     print_skills(chc_profile.get_primary_skills())
     print("\u2502")
-    print("\u251c\u2500\u2500 Talents exotiques")
+    print("\u251c\u2500\u2500 " +
+          "Talents exotiques")
     print_skills(chc_profile.get_exotic_skills())
     print("\u2502")
-    print("\u251c\u2500\u2500 Talents secondaires")
+    print("\u251c\u2500\u2500 " +
+          "Talents secondaires")
     print_skills(chc_profile.get_secondary_skills())
     print("\u2502")
-    print("\u2514\u2500\u2500 Pouvoirs")
+    print("\u2514\u2500\u2500 " +
+          "Pouvoirs")
     print_powers(chc_profile.get_powers())
     print("\n")
 
@@ -253,8 +264,8 @@ def print_attributes(chc_profile):
     attributes = chc_profile.get_attributes()
     values = chc_profile.get_side_values()
     for a, s in zip(attributes.keys(), values.keys()):
-        attr = value.format_attribute(a, attributes[a].get_cli_rank(), 14)
-        side = value.format_attribute(s, values[s].get_cli_rank(), 14)
+        attr = format_attribute(a, attributes[a].get_cli_rank(), 14)
+        side = format_attribute(s, values[s].get_cli_rank(), 14)
         if a != 'Foi':
             print('\u2502   \u251c\u2500\u2500 ' + attr +
                   '    \u251c\u2500\u2500 ' + side)
@@ -292,14 +303,14 @@ def print_skills(skill_set):
             if s == last:
                 br = "\u2514"
             print("\u2502   " + br + "\u2500\u2500 " +
-                  value.format_attribute(s, sk.get_cli_rank(), 37))
+                  format_attribute(s, sk.get_cli_rank(), 37))
             if sk.is_specific():
                 if s == last:
                     spacing = " "
                 else:
                     spacing = "\u2502"
                 print("\u2502   " + spacing + "   \u2514\u2500\u2500 " +
-                      value.format_attribute(
+                      format_attribute(
                           s + "_spe",
                           sk.get_specialization().get_cli_rank(), 33)
                       )

@@ -4,27 +4,6 @@
 import warnings
 
 
-def format_attribute(name, val, lng):
-    """Format a string for displaying the name and value of an attribute.
-
-    Args:
-        name: name of the attribute to display.
-        val: value of the attribute to display.
-        lng: length of the string to be returned, in number of
-        characters. Blank space will be padded with '-' characters.
-
-    Returns: a string.
-    """
-    name += ' '
-    if val is not None:
-        val = ' ' + val
-        lng -= len(val)
-        return '{:-<{pad}.{trunc}}{}'.format(
-            name, val, pad=lng, trunc=lng)
-    else:
-        return '{:<{pad}.{trunc}}'.format(name, pad=lng, trunc=lng)
-
-
 class Value:
     """Base class for representing numerical values for characters and profiles
     in scox.
@@ -127,10 +106,7 @@ class Attribute(Value):
         """
         if not self.invariant:
             rank = str(int(self.get_real_rank()))
-            if self.get_full_rank() % 2 != 0:
-                rank += '+'
-            else:
-                rank += ' '
+            rank += ('+' if self.get_full_rank() % 2 != 0 else ' ')
         else:
             rank = None
         return rank
@@ -184,15 +160,20 @@ class Skill(Attribute):
                 )
         self.master_skill = master_skill
 
-    def add_variety(self, variety):
+    def add_variety(self, variety, parent):
         """Append the input variety to the list of this skill's varieties, if
         the skill is multiple.
 
         Arguments:
         variety -- A variety of this skill.
+        parent -- Name of the skill the variety belongs to.
         """
         try:
-            self.varieties.append(variety)
+            if variety not in self.varieties:
+                self.varieties.append(variety)
+            else:
+                self.varieties.append(parent + '_' +
+                                      str(len(self.varieties) + 1))
         except AttributeError:
             warnings.warn("Non-multiple skill.", Warning)
 
