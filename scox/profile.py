@@ -55,6 +55,8 @@ class Profile:
         """
         if self.power_table is not None:
             it = 0
+            coords = [2135, 1357] if self.nature == 'Demon' else [0, 0]
+            shift = 72
             keys = [k for k in self.power_table.keys()]
             while it < iterations:
                 roll = self.power_table[random.choice(keys)]
@@ -70,10 +72,17 @@ class Profile:
                     for k in roll[0].keys():
                         p = roll[0][k]
                         if p[0] == 'True':
-                            self.powers[k] = value.Power(p[2], invariant=True)
+                            self.powers[k] = value.Power(
+                                p[2],
+                                [coords[0], coords[1] +
+                                 len(self.powers) * shift],
+                                invariant=True)
                         else:
                             self.powers[k] = value.Power(
-                                p[2], base_rank=2 * int(p[1]))
+                                p[2],
+                                [coords[0], coords[1] +
+                                 len(self.powers) * shift],
+                                base_rank=2 * int(p[1]))
                     it += 1  # current iteration is successful
                 else:
                     break  # exit current iteration
@@ -210,6 +219,7 @@ class Profile:
             else:
                 if not row['Name'] in self.secondary_skills:
                     self.secondary_skills[row['Name']] = value.Skill(
+                        row['Name'],
                         acquired=True)
                 self.secondary_skills[row['Name']].increase_rank(
                     int(row['Rank']))
@@ -221,6 +231,8 @@ class Profile:
         powers -- CSV file containing powers.
         """
         reader = csv.DictReader(io.TextIOWrapper(powers))
+        coords = [2135, 1357] if self.nature == 'Demon' else [0, 0]
+        shift = 72
         for row in reader:
             if row['Name'] in self.powers:
                 raise KeyError("Power " + row['Name'] + " already exists.")
@@ -228,10 +240,12 @@ class Profile:
                 if row['Invariant'] == 'True':
                     self.powers[row['Name']] = value.Power(
                         row['Cost'],
+                        [coords[0], coords[1] + len(self.powers) * shift],
                         invariant=True)
                 else:
                     self.powers[row['Name']] = value.Power(
                         row['Cost'],
+                        [coords[0], coords[1] + len(self.powers) * shift],
                         base_rank=2 * int(row['Rank']))
 
     def load_exotic_skills(self, e_skills):

@@ -17,6 +17,8 @@ ANGEL_PROFILE_PATH = \
     os.path.join(os.path.dirname(__file__), 'scox', 'profiles', 'angels')
 DEMON_PROFILE_PATH = \
     os.path.join(os.path.dirname(__file__), 'scox', 'profiles', 'demons')
+CHARACTER_SHEET_PATH = \
+    os.path.join(os.path.dirname(__file__), 'scox', 'sheets')
 
 
 class Config:
@@ -188,6 +190,27 @@ def delete(cfg, name):
 
 
 @character.command()
+@click.argument('name', type=click.STRING)
+@click.option('--format', type=click.Choice(['svg', 'txt']),
+              help='Format of the exported file.')
+@click.pass_obj
+def export(cfg, name, format):
+    """Create a new character."""
+    chc_path = os.path.join(cfg.teams[cfg.selected], name + '.pickle')
+    if os.path.exists(chc_path):
+        profile = chc.load_from_pickle(chc_path)
+        if format == 'svg':
+            sheet = 'INS.png' if profile.get_nature() == 'Demon' else 'MV.png'
+            sheet_path = os.path.join(CHARACTER_SHEET_PATH, sheet)
+            out_path = os.path.join(cfg.teams[cfg.selected], name + '.svg')
+            profile.export_as_svg(out_path, sheet_path)
+        else:
+            pass
+    else:
+        print(name + " does not exist in selected team.")
+
+
+@character.command()
 @click.pass_obj
 def ls(cfg):
     """Display the list of existing characters."""
@@ -264,7 +287,8 @@ def print_attributes(chc_profile):
     attributes = chc_profile.get_attributes()
     values = chc_profile.get_side_values()
     for a, s in zip(attributes.keys(), values.keys()):
-        attr = format_attribute(a, attributes[a].get_cli_rank(), 14)
+        attr = format_attribute(
+            attributes[a].get_name(), attributes[a].get_cli_rank(), 14)
         side = format_attribute(s, values[s].get_cli_rank(), 14)
         if a != 'Foi':
             print('\u2502   \u251c\u2500\u2500 ' + attr +
@@ -303,7 +327,7 @@ def print_skills(skill_set):
             if s == last:
                 br = "\u2514"
             print("\u2502   " + br + "\u2500\u2500 " +
-                  format_attribute(s, sk.get_cli_rank(), 37))
+                  format_attribute(sk.get_name(), sk.get_cli_rank(), 37))
             if sk.is_specific():
                 if s == last:
                     spacing = " "
@@ -311,7 +335,7 @@ def print_skills(skill_set):
                     spacing = "\u2502"
                 print("\u2502   " + spacing + "   \u2514\u2500\u2500 " +
                       format_attribute(
-                          s + "_spe",
+                          sk.get_specialization().get_name(),
                           sk.get_specialization().get_cli_rank(), 33)
                       )
             elif sk.is_multiple():

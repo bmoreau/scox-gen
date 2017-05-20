@@ -11,16 +11,19 @@ class Value:
     Instance variables:
     base_rank -- Initial rank of the value, expressed as an integer.
     rank -- Rank of the value, expressed as an integer.
+    coordinates -- 2D coordinates of the value on an SVG character sheet.
     """
 
-    def __init__(self, base_rank):
+    def __init__(self, base_rank, coordinates):
         """Constructor.
 
         Arguments:
         base_rank -- Base rank of the new value.
+        coordinates -- 2D coordinates of the nw value.
         """
         self.base_rank = base_rank
         self.rank = 0
+        self.coordinates = coordinates
 
     def get_cli_rank(self):
         """Return the real rank of the represented value as a string of
@@ -35,6 +38,14 @@ class Value:
         rank.
         """
         return self.rank + self.base_rank
+
+    def get_x(self):
+        """Return the X coordinate of the value."""
+        return self.coordinates[0]
+
+    def get_y(self):
+        """Return the X coordinate of the value."""
+        return self.coordinates[1]
 
     def increase_rank(self, step):
         """Increase the rank of the value by step.
@@ -57,6 +68,7 @@ class Attribute(Value):
     """Value-derived class for representing character's attributes.
 
     Instance variables:
+    name -- Name of the skill, and how it is displayed.
     invariant -- Boolean value; True if the attribute's rank cannot be
         modified.
 
@@ -65,16 +77,19 @@ class Attribute(Value):
     decrement_rank -- Decrease the rank of the attribute by 1.
     """
 
-    def __init__(self, base_rank, invariant=False):
+    def __init__(self, name, base_rank, coordinates, invariant=False):
         """Constructor.
 
         Arguments:
+        name - Human-friendly name of the skill.
         base_rank -- Base rank of the new attribute.
+        coordinates -- Coordinates of the attribute on an SVG sheet.
 
         Keyword arguments:
         invariant -- True if the new attribute is an invariant (default False).
         """
-        Value.__init__(self, base_rank)
+        Value.__init__(self, base_rank, coordinates)
+        self.name = name
         self.invariant = invariant
 
     def increase_rank(self, step):
@@ -91,10 +106,18 @@ class Attribute(Value):
         if not self.invariant:
             self.rank += 1
 
+    def is_invariant(self):
+        """Return True if the attribute is invariant."""
+        return self.invariant
+
     def decrement_rank(self):
         """Decrease the rank of the attribute by 1."""
         if self.rank > 0 and not self.invariant:
             self.rank -= 1
+
+    def get_name(self):
+        """Return the name of the skill."""
+        return self.name
 
     def get_real_rank(self):
         """Return the real rank of the represented attribute."""
@@ -111,6 +134,14 @@ class Attribute(Value):
             rank = None
         return rank
 
+    def set_name(self, name):
+        """Set a new name for the skill.
+
+        Args:
+            name: a new name for the skill.
+        """
+        self.name = name
+
 
 class Skill(Attribute):
     """Attribute-derived class for representing character's skills.
@@ -126,10 +157,15 @@ class Skill(Attribute):
         can be used (default False).
     """
 
-    def __init__(self, governing_attribute=None, specific=False,
+    def __init__(self, name, coordinates,
+                 governing_attribute=None, specific=False,
                  multiple=False, invariant=False, master_skill=None,
                  acquired=False):
         """Constructor.
+
+        Arguments:
+        name - Human-friendly name of the skill.
+        coordinates -- Coordinates of the skill on an SVG sheet.
 
         Keyword arguments:
         governing_attribute -- Governing attribute of the new skill (default
@@ -144,7 +180,7 @@ class Skill(Attribute):
         acquired -- True if the new attribute requires a rank investment before
         it can be used (default False).
         """
-        Attribute.__init__(self, 0, invariant=invariant)
+        Attribute.__init__(self, name, 0, coordinates, invariant=invariant)
         self.governing_attribute = governing_attribute
         self.invariant = invariant
         self.acquired = acquired
@@ -154,6 +190,8 @@ class Skill(Attribute):
             self.varieties = []
         if specific:
             self.specialization = Skill(
+                'Spécialité',
+                [coordinates[0] + 63, coordinates[1]],
                 governing_attribute=self.governing_attribute,
                 master_skill=self,
                 acquired=self.acquired
@@ -195,12 +233,23 @@ class Skill(Attribute):
                 self.master_skill.get_full_rank() < self.get_full_rank()):
             self.rank -= 1
 
+    def get_governing_attribute(self):
+        """Return the governing attribute of the skill."""
+        return self.governing_attribute
+
     def get_specialization(self):
         """Return the specialization of the skill, if it exists."""
-        if not self.invariant:
+        if self.is_specific():
             return self.specialization
         else:
             warnings.warn("Non-specific skill.", Warning)
+
+    def get_varieties(self):
+        """Return the varieties of the skill, if they exist."""
+        if self.is_multiple():
+            return self.varieties
+        else:
+            warnings.warn("Non-multiple skill.", Warning)
 
     def increment_rank(self):
         """Increase the rank of the attribute by 1."""
@@ -251,17 +300,20 @@ class Power(Attribute):
         expressed in PP, per time unit or not).
     """
 
-    def __init__(self, cost, base_rank=0, invariant=False):
+    def __init__(self, cost, coordinates, base_rank=0,
+                 invariant=False):
         """Constructor.
 
         Arguments:
         cost -- Cost for activating the power.
+        coordinates -- Coordinates of the skill on an SVG sheet.
 
         Keyword arguments:
         invariant -- True if the new attribute is an invariant (default False).
         base_rank -- Base rank of the new attribute (default 0).
         """
-        Attribute.__init__(self, base_rank, invariant=invariant)
+        Attribute.__init__(self, None, base_rank, coordinates,
+                           invariant=invariant)
         self.cost = cost
 
     def get_cost(self):

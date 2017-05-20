@@ -4,6 +4,8 @@
 import scox.value as value
 import scox.profile as profile
 import pickle
+import base64
+import svgwrite
 
 
 def load_from_pickle(filepath):
@@ -28,9 +30,12 @@ class Character(profile.Profile):
 
     Instance variables:
     level -- Level of the character in his / her hierarchy (default 0).
+    lvl_coords -- Coordinates of the character's level on an SVG export.
     name -- Name of the character.
+    name_coords -- Coordinates of the character's name on an SVG export.
     notes -- Speak your mind freely.
     side_values -- Map of additional character defining values.
+    sup_coords -- Coordinates of the character's superior on an SVG export.
 
     Methods:
     export -- Serialize the character as a pickle file.
@@ -57,6 +62,9 @@ class Character(profile.Profile):
         profile.Profile.__init__(self, nature.capitalize())
         self.name = name
         self.level = level
+        self.name_coords = [722, 136] if self.nature == 'Demon' else [1125, 138]
+        self.lvl_coords = [1715, 233] if self.nature == 'Demon' else [2253, 236]
+        self.sup_coords = [761, 233] if self.nature == 'Demon' else [1163, 236]
         self.init_attributes()
         self.init_skills()
         self.init_values()
@@ -74,110 +82,372 @@ class Character(profile.Profile):
         with open(path, mode='wb') as f:
             pickle.dump(self, f)
 
+    def export_as_svg(self, path, sheet):
+        """Export the character's profile to a formatted SVG file.
+
+        Args:
+            path: path to a folder where to write the resulting SVG file.
+            sheet: a PNG file representing the (empty) character sheet to be
+            exported.
+        """
+        with open(sheet, 'rb') as image_file:
+            encoded_str = 'data:image/png;base64,' + \
+                          base64.b64encode(image_file.read()).decode()
+        fnt_skl = "font-size:40pt;font-family:'Traveling _Typewriter'"
+        dwg = svgwrite.Drawing(path, size=(2479, 3504))
+        # background
+        dwg.add(dwg.image(encoded_str, size=(2479, 3504)))
+        # identity info
+        dwg.add(dwg.text(self.name, x=[self.name_coords[0]],
+                         y=[self.name_coords[1]], style=fnt_skl))
+        dwg.add(dwg.text(str(self.level), x=[self.lvl_coords[0]],
+                         y=[self.lvl_coords[1]], style=fnt_skl))
+        dwg.add(dwg.text(self.superior, x=[self.sup_coords[0]],
+                         y=[self.sup_coords[1]], style=fnt_skl))
+        # attributes
+        self.export_attributes_as_svg(dwg)
+        # side values
+        self.export_values_as_svg(dwg)
+        # skills
+        self.export_skills_as_svg(dwg)
+        self.export_exotic_skills_as_svg(dwg)
+        # powers
+        self.export_powers_as_svg(dwg)
+        dwg.save()
+
+    def export_attributes_as_svg(self, drawing):
+        """Write the character's attributes on an SVG drawing.
+
+        Args:
+            drawing: a writable SVG drawing.
+        """
+        fnt = "font-size:100pt;font-family:'Baron Kuffner'"
+        for a in self.attributes.values():
+            drawing.add(drawing.text(a.get_cli_rank(), x=[a.get_x()],
+                                     y=[a.get_y()], style=fnt))
+
+    def export_skills_as_svg(self, drawing):
+        """Write the character's skills on an SVG drawing.
+
+        Args:
+            drawing: a writable SVG drawing.
+        """
+        fnt = "font-size:40pt;font-family:'Traveling _Typewriter'"
+        fnt_sml = "font-size:32pt;font-family:'Traveling _Typewriter'"
+        sp_shift = -549
+        m_shift = -527
+        p_and_s = {}
+        p_and_s.update(self.primary_skills)
+        p_and_s.update(self.secondary_skills)
+        for s in p_and_s.values():
+            if s.is_usable():
+                if s.is_invariant():  # only one possibility : Langues
+                    v_list = ''
+                    for v in s.get_varieties():
+                        v_list += v + ', '
+                    v_list.rstrip(', ')
+                    drawing.add(drawing.text(v_list, x=[s.get_x()],
+                                             y=[s.get_y()], style=fnt_sml))
+                else:
+                    drawing.add(drawing.text(s.get_cli_rank(), x=[s.get_x()],
+                                             y=[s.get_y()], style=fnt))
+                    if s.is_specific():
+                        sp = s.get_specialization()
+                        drawing.add(
+                            drawing.text(sp.get_cli_rank(), x=[sp.get_x()],
+                                         y=[sp.get_y()], style=fnt))
+                        drawing.add(
+                            drawing.text(sp.get_name(),
+                                         x=[sp.get_x() + sp_shift],
+                                         y=[sp.get_y()], style=fnt))
+                    elif s.is_multiple():
+                        s_list = ''
+                        for v in s.get_varieties():
+                            s_list += v + ', '
+                        drawing.add(drawing.text(s_list.rstrip(', '),
+                                                 x=[s.get_x() + m_shift],
+                                                 y=[s.get_y()], style=fnt))
+
+    def export_exotic_skills_as_svg(self, drawing):
+        """Write the character's exotic skills on an SVG drawing.
+
+        Args:
+            drawing: a writable SVG drawing.
+        """
+        fnt = "font-size:40pt;font-family:'Traveling _Typewriter'"
+        v_shift = 62.5
+        e_shift = -807
+        ch_shift = 125
+        it = 0
+        for e in self.exotic_skills.values():
+            if e.is_usable():
+                drawing.add(drawing.text(e.get_cli_rank(), x=[e.get_x()],
+                                         y=[e.get_y() + it * v_shift],
+                                         style=fnt))
+                drawing.add(drawing.text(e.get_name(),
+                                         x=[e.get_x() + e_shift],
+                                         y=[e.get_y() + it * v_shift],
+                                         style=fnt))
+                if e.get_governing_attribute() is not None:
+                    drawing.add(drawing.text(
+                        e.get_governing_attribute().get_name()[:3],
+                        x=[e.get_x() + ch_shift],
+                        y=[e.get_y() + it * v_shift], style=fnt))
+                it += 1
+
+    def export_powers_as_svg(self, drawing):
+        """Write the character's side values on an SVG drawing.
+
+        Args:
+            drawing: a writable SVG drawing.
+        """
+        fnt = "font-size:40pt;font-family:'Traveling _Typewriter'"
+        fnt_sml = "font-size:28pt;font-family:'Traveling _Typewriter'"
+        n_shift = -807
+        c_shift = 125
+        for p in self.powers:
+            pw = self.powers[p]
+            if not pw.is_invariant():
+                drawing.add(drawing.text(pw.get_cli_rank(), x=[pw.get_x()],
+                                         y=[pw.get_y()], style=fnt))
+            drawing.add(drawing.text(str(p), x=[pw.get_x() + n_shift],
+                                     y=[pw.get_y()], style=fnt))
+            drawing.add(drawing.text(pw.get_cost(), x=[pw.get_x() + c_shift],
+                                     y=[pw.get_y()], style=fnt_sml))
+
+    def export_values_as_svg(self, drawing):
+        """Write the character's side values on an SVG drawing.
+
+        Args:
+            drawing: a writable SVG drawing.
+        """
+        fnt = "font-size:40pt;font-family:'Traveling _Typewriter'"
+        for v in self.values.values():
+            drawing.add(drawing.text(v.get_cli_rank(), x=[v.get_x()],
+                                     y=[v.get_y()], style=fnt))
+
     def init_attributes(self):
         """Initialize the character's attributes."""
-        self.attributes["Force"] = value.Attribute(4)
-        self.attributes["Agilite"] = value.Attribute(4)
-        self.attributes["Perception"] = value.Attribute(4)
-        self.attributes["Volonte"] = value.Attribute(4)
-        self.attributes["Presence"] = value.Attribute(4)
-        self.attributes["Foi"] = value.Attribute(4)
+        self.attributes["Force"] = value.Attribute(
+            'Force',
+            4, [161, 525] if self.nature == 'Demon' else [0, 0])
+        self.attributes["Agilite"] = value.Attribute(
+            'Agilité',
+            4, [394, 508] if self.nature == 'Demon' else [0, 0])
+        self.attributes["Perception"] = value.Attribute(
+            'Perception',
+            4, [689, 538] if self.nature == 'Demon' else [0, 0])
+        self.attributes["Volonte"] = value.Attribute(
+            'Volonté',
+            4, [1021, 540] if self.nature == 'Demon' else [0, 0])
+        self.attributes["Presence"] = value.Attribute(
+            'Présence',
+            4, [1294, 530] if self.nature == 'Demon' else [0, 0])
+        self.attributes["Foi"] = value.Attribute(
+            'Foi',
+            4, [1563, 536] if self.nature == 'Demon' else [0, 0])
 
     def init_skills(self):
         """Initialize the character's skills."""
         # Primary skills
         self.primary_skills["Baratin"] = value.Skill(
+            'Baratin',
+            [983, 924] if self.nature == 'Demon' else [0, 0],
             governing_attribute=self.attributes["Presence"])
         self.primary_skills["Combat"] = value.Skill(
+            'Combat',
+            [942, 987] if self.nature == 'Demon' else [0, 0],
             governing_attribute=self.attributes["Agilite"],
             specific=True)
         self.primary_skills["CaC"] = value.Skill(
+            'Corps à corps',
+            [983, 1050] if self.nature == 'Demon' else [0, 0],
             governing_attribute=self.attributes["Agilite"])
         self.primary_skills["Defense"] = value.Skill(
+            'Défense',
+            [983, 1113] if self.nature == 'Demon' else [0, 0],
             governing_attribute=self.attributes["Agilite"])
         self.primary_skills["Discretion"] = value.Skill(
+            'Discrétion',
+            [983, 1176] if self.nature == 'Demon' else [0, 0],
             governing_attribute=self.attributes["Agilite"])
         self.primary_skills["Discussion"] = value.Skill(
+            'Discussion',
+            [983, 1239] if self.nature == 'Demon' else [0, 0],
             governing_attribute=self.attributes["Volonte"])
         self.primary_skills["Enquete"] = value.Skill(
+            'Enquête',
+            [983, 1302] if self.nature == 'Demon' else [0, 0],
             governing_attribute=self.attributes["Foi"])
         self.primary_skills["Fouille"] = value.Skill(
+            'Fouille',
+            [983, 1365] if self.nature == 'Demon' else [0, 0],
             governing_attribute=self.attributes["Perception"])
-        self.primary_skills["Intrusion"] = value.Skill(acquired=True)
-        self.primary_skills["Medecine"] = value.Skill(acquired=True)
+        self.primary_skills["Intrusion"] = value.Skill(
+            'Intrusion',
+            [983, 1428] if self.nature == 'Demon' else [0, 0],
+            acquired=True)
+        self.primary_skills["Medecine"] = value.Skill(
+            'Médecine',
+            [983, 1491] if self.nature == 'Demon' else [0, 0],
+            acquired=True)
         self.primary_skills["Seduction"] = value.Skill(
+            'Séduction',
+            [983, 1554] if self.nature == 'Demon' else [0, 0],
             governing_attribute=self.attributes["Presence"])
         self.primary_skills["Tir"] = value.Skill(
+            'Tir',
+            [942, 1617] if self.nature == 'Demon' else [0, 0],
             governing_attribute=self.attributes["Perception"],
             specific=True)
         # Exotic skills
         self.exotic_skills["Contorsionnisme"] = value.Skill(
+            'Contorsionnisme',
+            [983, 1800] if self.nature == 'Demon' else [0, 0],
             governing_attribute=self.attributes["Agilite"], acquired=True)
-        self.exotic_skills["Humour"] = value.Skill(acquired=True)
+        self.exotic_skills["Humour"] = value.Skill(
+            'Humour',
+            [983, 1800] if self.nature == 'Demon' else [0, 0],
+            acquired=True)
         self.exotic_skills["Hypnotisme"] = value.Skill(
-            governing_attribute=self.attributes["Volonte"], acquired=True)
-        self.exotic_skills["Jeu"] = value.Skill(acquired=True)
-        self.exotic_skills["KamaSutra"] = value.Skill(acquired=True)
+            'Hypnotisme',
+            [983, 1800] if self.nature == 'Demon' else [0, 0],
+            governing_attribute=self.attributes["Volonte"],
+            acquired=True)
+        self.exotic_skills["Jeu"] = value.Skill(
+            'Jeu',
+            [983, 1800] if self.nature == 'Demon' else [0, 0],
+            acquired=True)
+        self.exotic_skills["KamaSutra"] = value.Skill(
+            'Kama Sutra',
+            [983, 1800] if self.nature == 'Demon' else [0, 0],
+            acquired=True)
         self.exotic_skills["LangageAnimal"] = value.Skill(
+            'Langage animal',
+            [983, 1800] if self.nature == 'Demon' else [0, 0],
             governing_attribute=self.attributes["Perception"], acquired=True)
-        self.exotic_skills["Narcolepsie"] = value.Skill(acquired=True)
+        self.exotic_skills["Narcolepsie"] = value.Skill(
+            'Narcolepsie',
+            [983, 1800] if self.nature == 'Demon' else [0, 0],
+            acquired=True)
         self.exotic_skills["Pickpocket"] = value.Skill(
+            'Pickpocket',
+            [983, 1800] if self.nature == 'Demon' else [0, 0],
             governing_attribute=self.attributes["Agilite"], acquired=True)
         self.exotic_skills["Prestidigitation"] = value.Skill(
+            'Prestidigitation',
+            [983, 1800] if self.nature == 'Demon' else [0, 0],
             governing_attribute=self.attributes["Agilite"], acquired=True)
         self.exotic_skills["SixiemeSens"] = value.Skill(
+            'Sixième sens',
+            [983, 1800] if self.nature == 'Demon' else [0, 0],
             governing_attribute=self.attributes["Foi"], acquired=True)
-        self.exotic_skills["Torture"] = value.Skill(acquired=True)
-        self.exotic_skills["Ventriloquie"] = value.Skill(acquired=True)
+        self.exotic_skills["Torture"] = value.Skill(
+            'Torture',
+            [983, 1800] if self.nature == 'Demon' else [0, 0],
+            acquired=True)
+        self.exotic_skills["Ventriloquie"] = value.Skill(
+            'Ventriloquie',
+            [983, 1800] if self.nature == 'Demon' else [0, 0],
+            acquired=True)
         #  Secondary skills
         self.secondary_skills["Acrobaties"] = value.Skill(
+            'Acrobaties',
+            [983, 2238] if self.nature == 'Demon' else [0, 0],
             governing_attribute=self.attributes["Agilite"])
         self.secondary_skills["AisanceSociale"] = value.Skill(
+            'Aisance sociale',
+            [983, 2300.5] if self.nature == 'Demon' else [0, 0],
             governing_attribute=self.attributes["Presence"])
         self.secondary_skills["Art"] = value.Skill(
+            'Art',
+            [942, 2363] if self.nature == 'Demon' else [0, 0],
             governing_attribute=self.attributes["Presence"],
             specific=True, acquired=True)
         self.secondary_skills["Athletisme"] = value.Skill(
+            'Athlétisme',
+            [983, 2425.5] if self.nature == 'Demon' else [0, 0],
             governing_attribute=self.attributes["Force"])
         self.secondary_skills["Conduite"] = value.Skill(
+            'Conduite',
+            [983, 2488] if self.nature == 'Demon' else [0, 0],
             governing_attribute=self.attributes["Agilite"], acquired=True)
         self.secondary_skills["CultureGenerale"] = value.Skill(
+            'Culture générale',
+            [942, 2550.5] if self.nature == 'Demon' else [0, 0],
             specific=True, acquired=True)
         self.secondary_skills["Hobby"] = value.Skill(
+            'Hobby',
+            [983, 2613] if self.nature == 'Demon' else [0, 0],
             multiple=True, acquired=True)
-        self.secondary_skills["Informatique"] = value.Skill(acquired=True)
+        self.secondary_skills["Informatique"] = value.Skill(
+            'Informatique',
+            [983, 2675.5] if self.nature == 'Demon' else [0, 0],
+            acquired=True)
         self.secondary_skills["Intimidation"] = value.Skill(
+            'Intimidation',
+            [983, 2738] if self.nature == 'Demon' else [0, 0],
             governing_attribute=self.attributes["Force"])
         self.secondary_skills["Langues"] = value.Skill(
+            'Langues',
+            [347, 2800.5] if self.nature == 'Demon' else [0, 0],
             multiple=True, invariant=True, acquired=True)
         self.secondary_skills["Metier"] = value.Skill(
+            'Métier',
+            [942, 2863] if self.nature == 'Demon' else [0, 0],
             specific=True, acquired=True)
-        self.secondary_skills["Navigation"] = value.Skill(acquired=True)
-        self.secondary_skills["Pilotage"] = value.Skill(acquired=True)
+        self.secondary_skills["Navigation"] = value.Skill(
+            'Navigation',
+            [983, 2925.5] if self.nature == 'Demon' else [0, 0],
+            acquired=True)
+        self.secondary_skills["Pilotage"] = value.Skill(
+            'Pilotage',
+            [983, 2988] if self.nature == 'Demon' else [0, 0],
+            acquired=True)
         self.secondary_skills["SavoirCriminel"] = value.Skill(
+            'Savoir criminel',
+            [942, 3050.5] if self.nature == 'Demon' else [0, 0],
             specific=True, acquired=True)
         self.secondary_skills["SavoirEspion"] = value.Skill(
+            'Savoir espion',
+            [942, 3113] if self.nature == 'Demon' else [0, 0],
             specific=True, acquired=True)
         self.secondary_skills["SavoirMilitaire"] = value.Skill(
+            'Savoir militaire',
+            [942, 3175.5] if self.nature == 'Demon' else [0, 0],
             specific=True, acquired=True)
         self.secondary_skills["SavoirOcculte"] = value.Skill(
+            'Savoir occulte',
+            [942, 3238] if self.nature == 'Demon' else [0, 0],
             specific=True, acquired=True)
         self.secondary_skills["Science"] = value.Skill(
+            'Science',
+            [942, 3300.5] if self.nature == 'Demon' else [0, 0],
             specific=True, acquired=True)
         self.secondary_skills["Survie"] = value.Skill(
+            'Survie',
+            [942, 3363] if self.nature == 'Demon' else [0, 0],
             governing_attribute=self.attributes["Perception"],
             specific=True, acquired=True)
         self.secondary_skills["Technique"] = value.Skill(
+            'Technique',
+            [942, 3425.5] if self.nature == 'Demon' else [0, 0],
             specific=True, acquired=True)
 
     def init_values(self):
         """Initialize the character's side values."""
-        self.values["PF"] = value.Value(0)
-        self.values["PP"] = value.Value(0)
-        self.values["BL"] = value.Value(0)
-        self.values["BG"] = value.Value(0)
-        self.values["BF"] = value.Value(0)
-        self.values["MS"] = value.Value(0)
+        self.values["PF"] = value.Value(
+            0, [1383, 805] if self.nature == 'Demon' else [0, 0])
+        self.values["PP"] = value.Value(
+            0, [1383, 867] if self.nature == 'Demon' else [0, 0])
+        self.values["BL"] = value.Value(
+            0, [1373, 945] if self.nature == 'Demon' else [0, 0])
+        self.values["BG"] = value.Value(
+            0, [1373, 1009] if self.nature == 'Demon' else [0, 0])
+        self.values["BF"] = value.Value(
+            0, [1373, 1073] if self.nature == 'Demon' else [0, 0])
+        self.values["MS"] = value.Value(
+            0, [1373, 1137] if self.nature == 'Demon' else [0, 0])
 
     def get_attributes(self):
         """Return the character's attributes."""
