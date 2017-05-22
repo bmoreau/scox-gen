@@ -55,7 +55,7 @@ class Profile:
         """
         if self.power_table is not None:
             it = 0
-            coords = [2135, 1357] if self.nature == 'Demon' else [0, 0]
+            coords = [2135, 1357] if self.nature == 'Demon' else [939, 2628]
             shift = 72
             keys = [k for k in self.power_table.keys()]
             while it < iterations:
@@ -231,7 +231,7 @@ class Profile:
         powers -- CSV file containing powers.
         """
         reader = csv.DictReader(io.TextIOWrapper(powers))
-        coords = [2135, 1357] if self.nature == 'Demon' else [0, 0]
+        coords = [2135, 1357] if self.nature == 'Demon' else [939, 2628]
         shift = 72
         for row in reader:
             if row['Name'] in self.powers:
