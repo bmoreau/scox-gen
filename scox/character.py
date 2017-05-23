@@ -145,9 +145,9 @@ class Character(profile.Profile):
                     v_list = ''
                     for v in s.get_varieties():
                         v_list += v + ', '
-                    v_list.rstrip(', ')
-                    drawing.add(drawing.text(v_list, x=[s.get_x()],
-                                             y=[s.get_y()], style=fnt_sml))
+                    drawing.add(drawing.text(v_list.rstrip(', '),
+                                             x=[s.get_x()], y=[s.get_y()],
+                                             style=fnt_sml))
                 else:
                     drawing.add(drawing.text(s.get_cli_rank(), x=[s.get_x()],
                                              y=[s.get_y()], style=fnt))
@@ -159,14 +159,14 @@ class Character(profile.Profile):
                         drawing.add(
                             drawing.text(sp.get_name(),
                                          x=[sp.get_x() + sp_shift],
-                                         y=[sp.get_y()], style=fnt))
+                                         y=[sp.get_y()], style=fnt_sml))
                     elif s.is_multiple():
                         s_list = ''
                         for v in s.get_varieties():
                             s_list += v + ', '
                         drawing.add(drawing.text(s_list.rstrip(', '),
                                                  x=[s.get_x() + m_shift],
-                                                 y=[s.get_y()], style=fnt))
+                                                 y=[s.get_y()], style=fnt_sml))
 
     def export_exotic_skills_as_svg(self, drawing):
         """Write the character's exotic skills on an SVG drawing.
@@ -175,6 +175,7 @@ class Character(profile.Profile):
             drawing: a writable SVG drawing.
         """
         fnt = "font-size:40pt;font-family:'Traveling _Typewriter'"
+        fnt_sml = "font-size:36pt;font-family:'Traveling _Typewriter'"
         v_shift = 62.5
         e_shift = -807
         ch_shift = 125
@@ -187,12 +188,12 @@ class Character(profile.Profile):
                 drawing.add(drawing.text(e.get_name(),
                                          x=[e.get_x() + e_shift],
                                          y=[e.get_y() + it * v_shift],
-                                         style=fnt))
+                                         style=fnt_sml))
                 if e.get_governing_attribute() is not None:
                     drawing.add(drawing.text(
                         e.get_governing_attribute().get_name()[:3],
                         x=[e.get_x() + ch_shift],
-                        y=[e.get_y() + it * v_shift], style=fnt))
+                        y=[e.get_y() + it * v_shift], style=fnt_sml))
                 it += 1
 
     def export_powers_as_svg(self, drawing):
@@ -201,7 +202,8 @@ class Character(profile.Profile):
         Args:
             drawing: a writable SVG drawing.
         """
-        fnt = "font-size:40pt;font-family:'Traveling _Typewriter'"
+        fnt = "font-size:36pt;font-family:'Traveling _Typewriter'"
+        fnt_big = "font-size:40pt;font-family:'Traveling _Typewriter'"
         fnt_sml = "font-size:28pt;font-family:'Traveling _Typewriter'"
         n_shift = -835
         c_shift = 125
@@ -209,7 +211,7 @@ class Character(profile.Profile):
             pw = self.powers[p]
             if not pw.is_invariant():
                 drawing.add(drawing.text(pw.get_cli_rank(), x=[pw.get_x()],
-                                         y=[pw.get_y()], style=fnt))
+                                         y=[pw.get_y()], style=fnt_big))
             drawing.add(drawing.text(str(p), x=[pw.get_x() + n_shift],
                                      y=[pw.get_y()], style=fnt))
             drawing.add(drawing.text(pw.get_cost(), x=[pw.get_x() + c_shift],

@@ -242,6 +242,40 @@ def show(cfg, name):
         print(name + " does not exist in selected team.")
 
 
+@character.group()
+def edit():
+    """Commands for editing characters."""
+    pass
+
+
+@edit.command()
+@click.argument('name', type=click.STRING)
+@click.pass_obj
+def skills(cfg, name):
+    """Edit the character's specializations and skill varieties."""
+    file_path = os.path.join(cfg.teams[cfg.selected], name + '.pickle')
+    if os.path.exists(file_path):
+        profile = chc.load_from_pickle(file_path)
+        for p in profile.get_primary_skills().values():
+            if p.is_usable() and p.is_specific():
+                new = click.prompt(
+                    p.get_name(), default=p.get_specialization().get_name())
+                p.get_specialization().set_name(new)
+        for s in profile.get_secondary_skills().values():
+            if s.is_usable():
+                if s.is_specific():
+                    new = click.prompt(
+                        s.get_name(), default=s.get_specialization().get_name())
+                    s.get_specialization().set_name(new)
+                elif s.is_multiple():
+                    for v in range(len(s.get_varieties())):
+                        s.get_varieties()[v] = click.prompt(
+                            s.get_name(), s.get_varieties()[v])
+        profile.export_as_pickle(file_path)
+    else:
+        print(name + " does not exist in selected team.")
+
+
 def print_cli(chc_profile):
     """Print the character's complete profile to the command line."""
     print("\n")
