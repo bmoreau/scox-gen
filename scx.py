@@ -97,18 +97,6 @@ def create(cfg, name, location):
 
 @team.command()
 @click.argument('name', type=click.STRING)
-@click.pass_obj
-def select(cfg, name):
-    """Select an existing team."""
-    if name in cfg.teams:
-        with open(CONFIG_FILE, mode='w') as c:
-            json.dump([name, cfg.teams], c)
-    else:
-        print(name + ' does not exist in current list of teams.')
-
-
-@team.command()
-@click.argument('name', type=click.STRING)
 @click.confirmation_option(help='Skip the confirmation step.')
 @click.pass_obj
 def delete(cfg, name):
@@ -136,11 +124,51 @@ def delete(cfg, name):
 
 
 @team.command()
+@click.option('--format', type=click.Choice(['svg', 'txt']),
+              help='Format of the exported file(s).', default='svg')
+@click.pass_obj
+def export(cfg, format):
+    """Export all the character's profiles in the selected team as SVG or
+    TXT files."""
+    ignored = 0
+    for i in os.listdir(cfg.teams[cfg.selected]):
+        file_path = os.path.join(cfg.teams[cfg.selected], i)
+        try:
+            profile = chc.load_from_pickle(file_path)
+            if format == 'svg':
+                sheet = 'INS.png' if profile.get_nature() == 'Demon'\
+                    else 'MV.png'
+                sheet_path = os.path.join(CHARACTER_SHEET_PATH, sheet)
+                out_path = os.path.join(cfg.teams[cfg.selected],
+                                        profile.get_name() + '.svg')
+                profile.export_as_svg(out_path, sheet_path)
+            else:
+                pass
+        except Exception:
+            ignored += 1
+    if ignored > 0:
+        print(str(ignored) + " file(s) could not be loaded in selected team "
+                             "folder.")
+
+
+@team.command()
 @click.pass_obj
 def ls(cfg):
     """Display the list of existing teams."""
     for k in cfg.teams.keys():
         print(k + " (" + cfg.teams[k] + ")")
+
+
+@team.command()
+@click.argument('name', type=click.STRING)
+@click.pass_obj
+def select(cfg, name):
+    """Select an existing team."""
+    if name in cfg.teams:
+        with open(CONFIG_FILE, mode='w') as c:
+            json.dump([name, cfg.teams], c)
+    else:
+        print(name + ' does not exist in current list of teams.')
 
 
 @scx.group()
@@ -191,10 +219,10 @@ def delete(cfg, name):
 @character.command()
 @click.argument('name', type=click.STRING)
 @click.option('--format', type=click.Choice(['svg', 'txt']),
-              help='Format of the exported file.')
+              help='Format of the exported file.', default='svg')
 @click.pass_obj
 def export(cfg, name, format):
-    """Create a new character."""
+    """Export the selected character's profile as an SVG or a TXT file."""
     chc_path = os.path.join(cfg.teams[cfg.selected], name + '.pickle')
     if os.path.exists(chc_path):
         profile = chc.load_from_pickle(chc_path)
