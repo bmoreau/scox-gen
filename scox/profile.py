@@ -220,6 +220,7 @@ class Profile:
                 if not row['Name'] in self.secondary_skills:
                     self.secondary_skills[row['Name']] = value.Skill(
                         row['Name'],
+                        [0, 0],  # FIXME: which coordinates for this skill?
                         acquired=True)
                 self.secondary_skills[row['Name']].increase_rank(
                     int(row['Rank']))

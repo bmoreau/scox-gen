@@ -7,7 +7,10 @@ __scox-gen__ permet de créer rapidement des équipes d'anges et de démons joua
 Il ne s'agit en aucun cas d'un logiciel officiel, juste d'un outil codé par un gars qui en avait marre de perdre du temps à équilibrer ses pré-tirés (et qui le perd désormais [à automatiser le processus](https://xkcd.com/1319/)).
 
 ## Dépendances
-__scox-gen__ fonctionne avec [Python 3](https://www.python.org/downloads/).
+__scox-gen__ fonctionne avec [Python 3](https://www.python.org/downloads/). Il utilise (et installe) les modules suivants :
+* [Click](https://github.com/pallets/click)
+* [colorama](https://github.com/tartley/colorama)
+* [svgwrite](https://github.com/mozman/svgwrite)
 
 ## Licence
 Le code source de __scox-gen__ est distribué sous licence [BSD 3](https://opensource.org/licenses/BSD-3-Clause) :

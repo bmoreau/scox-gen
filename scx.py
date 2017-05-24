@@ -2,7 +2,6 @@
 # coding=utf-8
 
 import scox.character as chc
-import scox.value as value
 import os
 import shutil
 import json
