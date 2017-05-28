@@ -12,7 +12,7 @@ setup(
     url='https://github.com/bmoreau/scox-gen',
     license='BSD 3-Clause',
     py_modules=['scx'],
-    packages=['scox'],
+    packages=['scox', 'scox.export'],
     package_data={'scox': ['profiles/demons/*.scx',
                            'profiles/angels/*.scx',
                            'profiles/archetypes/*.scx',
