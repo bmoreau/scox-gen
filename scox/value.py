@@ -207,10 +207,15 @@ class Skill(Attribute):
         parent -- Name of the skill the variety belongs to.
         """
         try:
-            if variety not in self.varieties:
+            if not self.is_invariant() and len(self.varieties) >= 1:
+                # case of 'Métier' and 'Hobby' skills which behave like
+                # specific skills without master skill; they therefore accept
+                # only one variety (ok, maybe 'multiple' was not a good word)
+                pass
+            elif variety not in self.varieties:
                 self.varieties.append(variety)
             else:
-                self.varieties.append(parent + '_' +
+                self.varieties.append(parent.rstrip('s') + '_' +
                                       str(len(self.varieties) + 1))
         except AttributeError:
             warnings.warn("Non-multiple skill.", Warning)
@@ -283,8 +288,7 @@ class Skill(Attribute):
         """
         if not self.acquired or self.rank != 0:
             return True
-        elif (self.specialization is not None and
-                self.specialization.is_usable()):
+        elif self.is_specific() and self.specialization.is_usable():
             return True
         elif self.varieties is not None and len(self.varieties) != 0:
             return True
