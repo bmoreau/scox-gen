@@ -5,6 +5,7 @@ import scox.character as chc
 import scox.export.cli as cli
 import scox.export.serialize as srl
 import scox.export.svg as svg
+import scox.export.txt as txt
 
 import os
 import shutil
@@ -236,7 +237,9 @@ def export(cfg, name, format):
             out_path = os.path.join(cfg.teams[cfg.selected], name + '.svg')
             svg.export_as_svg(profile, out_path, sheet_path)
         else:
-            pass
+            out_path = os.path.join(cfg.teams[cfg.selected], name + '.txt')
+            with open(out_path, 'w') as handle:
+                txt.export_as_txt(profile, handle)
     else:
         print(name + " does not exist in selected team.")
 

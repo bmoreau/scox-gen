@@ -145,12 +145,11 @@ def export_powers_as_svg(profile, drawing):
     fnt_sml = "font-size:28pt;font-family:'Traveling _Typewriter'"
     n_shift = -835
     c_shift = 125
-    for p in profile.get_powers():
-        pw = profile.get_powers()[p]
+    for pw in profile.get_powers().values():
         if not pw.is_invariant():
             drawing.add(drawing.text(pw.get_cli_rank(), x=[pw.get_x()],
                                      y=[pw.get_y()], style=fnt_big))
-        drawing.add(drawing.text(str(p), x=[pw.get_x() + n_shift],
+        drawing.add(drawing.text(pw.get_name(), x=[pw.get_x() + n_shift],
                                  y=[pw.get_y()], style=fnt))
         drawing.add(drawing.text(pw.get_cost(), x=[pw.get_x() + c_shift],
                                  y=[pw.get_y()], style=fnt_sml))

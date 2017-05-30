@@ -242,6 +242,24 @@ class Skill(Attribute):
         """Return the governing attribute of the skill."""
         return self.governing_attribute
 
+    def get_pretty_string(self):
+        """Return a string representing the skill for output purposes."""
+        skill = self.get_name()
+        if self.is_specific():
+            skill += (" " + self.get_cli_rank().rstrip() + " (" +
+                      self.get_specialization().get_name() + " " +
+                      self.get_specialization().get_cli_rank().rstrip() + ")")
+        elif self.is_multiple():
+            varieties = " ("
+            for v in self.get_varieties():
+                varieties += v + ", "
+            skill += (varieties.rstrip(", ") + ")")
+            if not self.is_invariant():
+                skill += " " + self.get_cli_rank().rstrip()
+        else:
+            skill += " " + self.get_cli_rank().rstrip()
+        return skill
+
     def get_specialization(self):
         """Return the specialization of the skill, if it exists."""
         if self.is_specific():
@@ -304,11 +322,12 @@ class Power(Attribute):
         expressed in PP, per time unit or not).
     """
 
-    def __init__(self, cost, coordinates, base_rank=0,
+    def __init__(self, name, cost, coordinates, base_rank=0,
                  invariant=False):
         """Constructor.
 
         Arguments:
+        name -- Human-friendly name of the power.
         cost -- Cost for activating the power.
         coordinates -- Coordinates of the skill on an SVG sheet.
 
@@ -316,7 +335,7 @@ class Power(Attribute):
         invariant -- True if the new attribute is an invariant (default False).
         base_rank -- Base rank of the new attribute (default 0).
         """
-        Attribute.__init__(self, None, base_rank, coordinates,
+        Attribute.__init__(self, name, base_rank, coordinates,
                            invariant=invariant)
         self.cost = cost
 
