@@ -47,6 +47,26 @@ def scx(ctx):
 
 
 @scx.command()
+def test():
+    """Test every combination of profile / archetype."""
+    angel_ls = get_profile_list('angel')
+    demon_ls = get_profile_list('demon')
+    arch_ls = get_profile_list('arch')
+    for a in angel_ls:
+        for p in arch_ls:
+            try:
+                create_character(a + p, 'angel', a, p)
+            except Exception:
+                print('Exception caught for: ' + a + ', ' + p)
+    for d in demon_ls:
+        for p in arch_ls:
+            try:
+                create_character(d + p, 'demon', d, p)
+            except Exception:
+                print('Exception caught for: ' + d + ', ' + p)
+
+
+@scx.command()
 @click.argument('category', type=click.Choice(['demon', 'angel', 'arch']))
 def profiles(category):
     """Display the list of all available profiles for a given category."""
@@ -180,13 +200,7 @@ def character():
 @click.pass_obj
 def create(cfg, name, nature, superior, archetype):
     """Create a new character."""
-    archetype = os.path.join(ARCHETYPE_PROFILE_PATH,
-                             archetype.lower() + '.scx')
-    if nature == 'demon':
-        superior = os.path.join(DEMON_PROFILE_PATH, superior.lower() + '.scx')
-    else:
-        superior = os.path.join(ANGEL_PROFILE_PATH, superior.lower() + '.scx')
-    new = chc.Character(name, nature, archetype, superior)
+    new = create_character(name, nature, superior, archetype)
     filename = name + '.pickle'
     filename = os.path.join(cfg.teams[cfg.selected], filename)
     new.export_as_pickle(filename)
@@ -292,8 +306,32 @@ def skills(cfg, name):
         print(name + " does not exist in selected team.")
 
 
+def create_character(name, nature, superior, archetype):
+    """Create a new character based on the input description.
+
+    Args:
+        name: name of the new character.
+        nature: nature of the new character ('angel' or 'demon').
+        archetype: archetype of the new character.
+        superior: superior of the new character.
+
+    Returns: a scox.character.Character instance.
+    """
+    archetype = os.path.join(ARCHETYPE_PROFILE_PATH,
+                             archetype.lower() + '.scx')
+    if nature == 'demon':
+        superior = os.path.join(DEMON_PROFILE_PATH, superior.lower() + '.scx')
+    else:
+        superior = os.path.join(ANGEL_PROFILE_PATH, superior.lower() + '.scx')
+    new = chc.Character(name, nature, archetype, superior)
+    return new
+
+
 def print_cli(chc_profile):
-    """Print the character's complete profile to the command line."""
+    """Print the character's complete profile to the command line.
+
+    Args:
+        chc_profile: an instance of scox.character.Character."""
     print("\n")
     print("\u250C\u2500\u2500 " +
           chc_profile.get_name() +
