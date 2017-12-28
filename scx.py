@@ -50,19 +50,8 @@ def scx(ctx):
 @click.argument('category', type=click.Choice(['demon', 'angel', 'arch']))
 def profiles(category):
     """Display the list of all available profiles for a given category."""
-    if category == 'demon':
-        folder = DEMON_PROFILE_PATH
-    elif category == 'angel':
-        folder = ANGEL_PROFILE_PATH
-    else:
-        folder = ARCHETYPE_PROFILE_PATH
-    profile_list = []
-    for f in os.listdir(folder):
-        if f.endswith('.scx'):
-            profile_list.append(f.split('.')[0].title())
-    # compact printing
-    profile_list.sort()
-    it = iter(profile_list)
+    profile_ls = get_profile_list(category)
+    it = iter(profile_ls)
     for i in it:
         try:
             print('{:<30}{}'.format(i, next(it)))
@@ -434,7 +423,7 @@ def format_attribute(name, val, lng):
 
 
 def get_last_usable_skill(skill_dict):
-    """Returns the last usable skill contained by the input dictionary.
+    """Return the last usable skill contained by the input dictionary.
 
     Args:
         skill_dict: an ordered dictionary with scox.value.Skill objects as
@@ -450,3 +439,26 @@ def get_last_usable_skill(skill_dict):
         return usable[-1]
     else:
         return None
+
+
+def get_profile_list(profile_type):
+    """Return the requested list of available profiles.
+
+    Args:
+        profile_type: a string value in 'angel', 'demon' or 'arch'.
+
+    Returns: the alphabetically ordered list of profiles corresponding to the
+    input profile_type.
+    """
+    if profile_type == 'demon':
+        folder = DEMON_PROFILE_PATH
+    elif profile_type == 'angel':
+        folder = ANGEL_PROFILE_PATH
+    else:
+        folder = ARCHETYPE_PROFILE_PATH
+    profile_list = []
+    for f in os.listdir(folder):
+        if f.endswith('.scx'):
+            profile_list.append(f.split('.')[0].title())
+    profile_list.sort()
+    return profile_list
