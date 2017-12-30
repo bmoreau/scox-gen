@@ -2,6 +2,11 @@
 # coding=utf-8
 
 import scox.character as chc
+import scox.export.cli as cli
+import scox.export.serialize as srl
+import scox.export.svg as svg
+import scox.export.txt as txt
+
 import os
 import shutil
 import json
@@ -143,14 +148,14 @@ def export(cfg, format):
     for i in os.listdir(cfg.teams[cfg.selected]):
         file_path = os.path.join(cfg.teams[cfg.selected], i)
         try:
-            profile = chc.load_from_pickle(file_path)
+            profile = srl.load_from_pickle(file_path)
             if format == 'svg':
                 sheet = 'INS.png' if profile.get_nature() == 'Demon'\
                     else 'MV.png'
                 sheet_path = os.path.join(CHARACTER_SHEET_PATH, sheet)
                 out_path = os.path.join(cfg.teams[cfg.selected],
                                         profile.get_name() + '.svg')
-                profile.export_as_svg(out_path, sheet_path)
+                svg.export_as_svg(profile, out_path, sheet_path)
             else:
                 pass
         except Exception:
@@ -203,7 +208,7 @@ def create(cfg, name, nature, superior, archetype):
     new = create_character(name, nature, superior, archetype)
     filename = name + '.pickle'
     filename = os.path.join(cfg.teams[cfg.selected], filename)
-    new.export_as_pickle(filename)
+    srl.export_as_pickle(new, filename)
 
 
 @character.command()
@@ -228,14 +233,16 @@ def export(cfg, name, format):
     """Export the selected character's profile as an SVG or a TXT file."""
     chc_path = os.path.join(cfg.teams[cfg.selected], name + '.pickle')
     if os.path.exists(chc_path):
-        profile = chc.load_from_pickle(chc_path)
+        profile = srl.load_from_pickle(chc_path)
         if format == 'svg':
             sheet = 'INS.png' if profile.get_nature() == 'Demon' else 'MV.png'
             sheet_path = os.path.join(CHARACTER_SHEET_PATH, sheet)
             out_path = os.path.join(cfg.teams[cfg.selected], name + '.svg')
-            profile.export_as_svg(out_path, sheet_path)
+            svg.export_as_svg(profile, out_path, sheet_path)
         else:
-            pass
+            out_path = os.path.join(cfg.teams[cfg.selected], name + '.txt')
+            with open(out_path, 'w') as handle:
+                txt.export_as_txt(profile, handle)
     else:
         print(name + " does not exist in selected team.")
 
@@ -248,8 +255,8 @@ def ls(cfg):
     for i in os.listdir(cfg.teams[cfg.selected]):
         file_path = os.path.join(cfg.teams[cfg.selected], i)
         try:
-            c = chc.load_from_pickle(file_path)
-            clr = (Fore.RED if c.get_nature() == 'Demon' else Fore.LIGHTBLUE_EX)
+            c = srl.load_from_pickle(file_path)
+            clr = (Fore.RED if c.get_nature() == 'Demon' else Fore.CYAN)
             print(clr + Style.BRIGHT + c.get_name() +
                   Style.NORMAL + " - " + c.get_superior() +
                   Style.RESET_ALL)
@@ -267,7 +274,7 @@ def show(cfg, name):
     """Display the profile of an existing character."""
     file_path = os.path.join(cfg.teams[cfg.selected], name + '.pickle')
     if os.path.exists(file_path):
-        print_cli(chc.load_from_pickle(file_path))
+        cli.print_cli(srl.load_from_pickle(file_path))
     else:
         print(name + " does not exist in selected team.")
 
@@ -285,7 +292,7 @@ def skills(cfg, name):
     """Edit the character's specializations and skill varieties."""
     file_path = os.path.join(cfg.teams[cfg.selected], name + '.pickle')
     if os.path.exists(file_path):
-        profile = chc.load_from_pickle(file_path)
+        profile = srl.load_from_pickle(file_path)
         for p in profile.get_primary_skills().values():
             if p.is_usable() and p.is_specific():
                 new = click.prompt(
@@ -301,7 +308,7 @@ def skills(cfg, name):
                     for v in range(len(s.get_varieties())):
                         s.get_varieties()[v] = click.prompt(
                             s.get_name(), s.get_varieties()[v])
-        profile.export_as_pickle(file_path)
+        srl.export_as_pickle(profile, file_path)
     else:
         print(name + " does not exist in selected team.")
 

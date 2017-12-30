@@ -207,10 +207,15 @@ class Skill(Attribute):
         parent -- Name of the skill the variety belongs to.
         """
         try:
-            if variety not in self.varieties:
+            if not self.is_invariant() and len(self.varieties) >= 1:
+                # case of 'Métier' and 'Hobby' skills which behave like
+                # specific skills without master skill; they therefore accept
+                # only one variety (ok, maybe 'multiple' was not a good word)
+                pass
+            elif variety not in self.varieties:
                 self.varieties.append(variety)
             else:
-                self.varieties.append(parent + '_' +
+                self.varieties.append(parent.rstrip('s') + '_' +
                                       str(len(self.varieties) + 1))
         except AttributeError:
             warnings.warn("Non-multiple skill.", Warning)
@@ -236,6 +241,24 @@ class Skill(Attribute):
     def get_governing_attribute(self):
         """Return the governing attribute of the skill."""
         return self.governing_attribute
+
+    def get_pretty_string(self):
+        """Return a string representing the skill for output purposes."""
+        skill = self.get_name()
+        if self.is_specific():
+            skill += (" " + self.get_cli_rank().rstrip() + " (" +
+                      self.get_specialization().get_name() + " " +
+                      self.get_specialization().get_cli_rank().rstrip() + ")")
+        elif self.is_multiple():
+            varieties = " ("
+            for v in self.get_varieties():
+                varieties += v + ", "
+            skill += (varieties.rstrip(", ") + ")")
+            if not self.is_invariant():
+                skill += " " + self.get_cli_rank().rstrip()
+        else:
+            skill += " " + self.get_cli_rank().rstrip()
+        return skill
 
     def get_specialization(self):
         """Return the specialization of the skill, if it exists."""
@@ -283,8 +306,7 @@ class Skill(Attribute):
         """
         if not self.acquired or self.rank != 0:
             return True
-        elif (self.specialization is not None and
-                self.specialization.is_usable()):
+        elif self.is_specific() and self.specialization.is_usable():
             return True
         elif self.varieties is not None and len(self.varieties) != 0:
             return True
@@ -300,11 +322,12 @@ class Power(Attribute):
         expressed in PP, per time unit or not).
     """
 
-    def __init__(self, cost, coordinates, base_rank=0,
+    def __init__(self, name, cost, coordinates, base_rank=0,
                  invariant=False):
         """Constructor.
 
         Arguments:
+        name -- Human-friendly name of the power.
         cost -- Cost for activating the power.
         coordinates -- Coordinates of the skill on an SVG sheet.
 
@@ -312,7 +335,7 @@ class Power(Attribute):
         invariant -- True if the new attribute is an invariant (default False).
         base_rank -- Base rank of the new attribute (default 0).
         """
-        Attribute.__init__(self, None, base_rank, coordinates,
+        Attribute.__init__(self, name, base_rank, coordinates,
                            invariant=invariant)
         self.cost = cost
 

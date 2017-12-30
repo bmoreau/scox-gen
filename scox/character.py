@@ -3,22 +3,6 @@
 
 import scox.value as value
 import scox.profile as profile
-import pickle
-import base64
-import svgwrite
-
-
-def load_from_pickle(filepath):
-    """Load a Character instance from a pickle file.
-
-    Args:
-        filepath: path to a pickle file containing character information.
-
-    Returns: a Character instance.
-    """
-    with open(filepath, mode='rb') as f:
-        c = pickle.load(f)
-        return c
 
 
 class Character(profile.Profile):
@@ -72,162 +56,6 @@ class Character(profile.Profile):
         self.load_profile(archetype, True)
         self.draw_from_table(2)
         self.update_values()
-
-    def export_as_pickle(self, path):
-        """Serialize the character as a pickle file.
-
-        Args:
-            path: path to a folder where to write the resulting pickle file.
-        """
-        with open(path, mode='wb') as f:
-            pickle.dump(self, f)
-
-    def export_as_svg(self, path, sheet):
-        """Export the character's profile to a formatted SVG file.
-
-        Args:
-            path: path to a folder where to write the resulting SVG file.
-            sheet: a PNG file representing the (empty) character sheet to be
-            exported.
-        """
-        with open(sheet, 'rb') as image_file:
-            encoded_str = 'data:image/png;base64,' + \
-                          base64.b64encode(image_file.read()).decode()
-        fnt_skl = "font-size:40pt;font-family:'Traveling _Typewriter'"
-        dwg = svgwrite.Drawing(path, size=(2479, 3504))
-        # background
-        dwg.add(dwg.image(encoded_str, size=(2479, 3504)))
-        # identity info
-        dwg.add(dwg.text(self.name, x=[self.name_coords[0]],
-                         y=[self.name_coords[1]], style=fnt_skl))
-        dwg.add(dwg.text(str(self.level), x=[self.lvl_coords[0]],
-                         y=[self.lvl_coords[1]], style=fnt_skl))
-        dwg.add(dwg.text(self.superior, x=[self.sup_coords[0]],
-                         y=[self.sup_coords[1]], style=fnt_skl))
-        # attributes
-        self.export_attributes_as_svg(dwg)
-        # side values
-        self.export_values_as_svg(dwg)
-        # skills
-        self.export_skills_as_svg(dwg)
-        self.export_exotic_skills_as_svg(dwg)
-        # powers
-        self.export_powers_as_svg(dwg)
-        dwg.save()
-
-    def export_attributes_as_svg(self, drawing):
-        """Write the character's attributes on an SVG drawing.
-
-        Args:
-            drawing: a writable SVG drawing.
-        """
-        fnt = "font-size:100pt;font-family:'Baron Kuffner'"
-        for a in self.attributes.values():
-            drawing.add(drawing.text(a.get_cli_rank(), x=[a.get_x()],
-                                     y=[a.get_y()], style=fnt))
-
-    def export_skills_as_svg(self, drawing):
-        """Write the character's skills on an SVG drawing.
-
-        Args:
-            drawing: a writable SVG drawing.
-        """
-        fnt = "font-size:40pt;font-family:'Traveling _Typewriter'"
-        fnt_sml = "font-size:32pt;font-family:'Traveling _Typewriter'"
-        sp_shift = -549
-        m_shift = -527
-        p_and_s = {}
-        p_and_s.update(self.primary_skills)
-        p_and_s.update(self.secondary_skills)
-        for s in p_and_s.values():
-            if s.is_usable():
-                if s.is_invariant():  # only one possibility : Langues
-                    v_list = ''
-                    for v in s.get_varieties():
-                        v_list += v + ', '
-                    drawing.add(drawing.text(v_list.rstrip(', '),
-                                             x=[s.get_x()], y=[s.get_y()],
-                                             style=fnt_sml))
-                else:
-                    drawing.add(drawing.text(s.get_cli_rank(), x=[s.get_x()],
-                                             y=[s.get_y()], style=fnt))
-                    if s.is_specific():
-                        sp = s.get_specialization()
-                        drawing.add(
-                            drawing.text(sp.get_cli_rank(), x=[sp.get_x()],
-                                         y=[sp.get_y()], style=fnt))
-                        drawing.add(
-                            drawing.text(sp.get_name(),
-                                         x=[sp.get_x() + sp_shift],
-                                         y=[sp.get_y()], style=fnt_sml))
-                    elif s.is_multiple():
-                        s_list = ''
-                        for v in s.get_varieties():
-                            s_list += v + ', '
-                        drawing.add(drawing.text(s_list.rstrip(', '),
-                                                 x=[s.get_x() + m_shift],
-                                                 y=[s.get_y()], style=fnt_sml))
-
-    def export_exotic_skills_as_svg(self, drawing):
-        """Write the character's exotic skills on an SVG drawing.
-
-        Args:
-            drawing: a writable SVG drawing.
-        """
-        fnt = "font-size:40pt;font-family:'Traveling _Typewriter'"
-        fnt_sml = "font-size:36pt;font-family:'Traveling _Typewriter'"
-        v_shift = 62.5
-        e_shift = -807
-        ch_shift = 125
-        it = 0
-        for e in self.exotic_skills.values():
-            if e.is_usable():
-                drawing.add(drawing.text(e.get_cli_rank(), x=[e.get_x()],
-                                         y=[e.get_y() + it * v_shift],
-                                         style=fnt))
-                drawing.add(drawing.text(e.get_name(),
-                                         x=[e.get_x() + e_shift],
-                                         y=[e.get_y() + it * v_shift],
-                                         style=fnt_sml))
-                if e.get_governing_attribute() is not None:
-                    drawing.add(drawing.text(
-                        e.get_governing_attribute().get_name()[:3],
-                        x=[e.get_x() + ch_shift],
-                        y=[e.get_y() + it * v_shift], style=fnt_sml))
-                it += 1
-
-    def export_powers_as_svg(self, drawing):
-        """Write the character's side values on an SVG drawing.
-
-        Args:
-            drawing: a writable SVG drawing.
-        """
-        fnt = "font-size:36pt;font-family:'Traveling _Typewriter'"
-        fnt_big = "font-size:40pt;font-family:'Traveling _Typewriter'"
-        fnt_sml = "font-size:28pt;font-family:'Traveling _Typewriter'"
-        n_shift = -835
-        c_shift = 125
-        for p in self.powers:
-            pw = self.powers[p]
-            if not pw.is_invariant():
-                drawing.add(drawing.text(pw.get_cli_rank(), x=[pw.get_x()],
-                                         y=[pw.get_y()], style=fnt_big))
-            drawing.add(drawing.text(str(p), x=[pw.get_x() + n_shift],
-                                     y=[pw.get_y()], style=fnt))
-            drawing.add(drawing.text(pw.get_cost(), x=[pw.get_x() + c_shift],
-                                     y=[pw.get_y()], style=fnt_sml))
-
-    def export_values_as_svg(self, drawing):
-        """Write the character's side values on an SVG drawing.
-
-        Args:
-            drawing: a writable SVG drawing.
-        """
-        size = '40pt' if self.nature == 'Demon' else '36pt'
-        fnt = "font-size:" + size + ";font-family:'Traveling _Typewriter'"
-        for v in self.values.values():
-            drawing.add(drawing.text(v.get_cli_rank(), x=[v.get_x()],
-                                     y=[v.get_y()], style=fnt))
 
     def init_attributes(self):
         """Initialize the character's attributes."""
@@ -464,9 +292,17 @@ class Character(profile.Profile):
         """Return the character's level."""
         return self.level
 
+    def get_lvl_coords(self):
+        """Return the character's level coordinates."""
+        return self.lvl_coords
+
     def get_name(self):
         """Return the character's name."""
         return self.name
+
+    def get_name_coords(self):
+        """Return the character's name coordinates."""
+        return self.name_coords
 
     def get_powers(self):
         """Return the character's powers."""
@@ -483,6 +319,10 @@ class Character(profile.Profile):
     def get_side_values(self):
         """Return the character's side values."""
         return self.values
+
+    def get_sup_coords(self):
+        """Return the character's superior coordinates."""
+        return self.sup_coords
 
     def update_values(self):
         """Compute the character's values and skills."""

@@ -73,12 +73,14 @@ class Profile:
                         p = roll[0][k]
                         if p[0] == 'True':
                             self.powers[k] = value.Power(
+                                k,
                                 p[2],
                                 [coords[0], coords[1] +
                                  len(self.powers) * shift],
                                 invariant=True)
                         else:
                             self.powers[k] = value.Power(
+                                k,
                                 p[2],
                                 [coords[0], coords[1] +
                                  len(self.powers) * shift],
@@ -240,11 +242,13 @@ class Profile:
             else:
                 if row['Invariant'] == 'True':
                     self.powers[row['Name']] = value.Power(
+                        row['Name'],
                         row['Cost'],
                         [coords[0], coords[1] + len(self.powers) * shift],
                         invariant=True)
                 else:
                     self.powers[row['Name']] = value.Power(
+                        row['Name'],
                         row['Cost'],
                         [coords[0], coords[1] + len(self.powers) * shift],
                         base_rank=2 * int(row['Rank']))
