@@ -15,7 +15,7 @@ __scox-gen__ fonctionne avec [Python 3](https://www.python.org/downloads/). Il u
 ## Licence
 Le code source de __scox-gen__ est distribué sous licence [BSD 3](https://opensource.org/licenses/BSD-3-Clause) :
 
-Copyright 2017, Bertrand Moreau
+Copyright 2020, Bertrand Moreau
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
